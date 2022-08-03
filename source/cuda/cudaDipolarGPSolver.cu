@@ -41,7 +41,8 @@ namespace UltraCold
                                          Vector<std::complex<double>> &psi_0,
                                          Vector<double> &Vext,
                                          double scattering_length,
-                                         double dipolar_length)
+                                         double dipolar_length,
+                                         double alpha)
         {
 
             // Check that the order of the Vectors provided is correctly 1
@@ -106,7 +107,6 @@ namespace UltraCold
             // Get the first necessary copies of input data from host to device
             cudaMemcpy(external_potential_d,Vext.data(),       npoints*sizeof(double),         cudaMemcpyHostToDevice);
             cudaMemcpy(wave_function_d,     psi_0.data(),      npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
-            cudaMemcpy(scattering_length_d, &scattering_length,1      *sizeof(double),         cudaMemcpyHostToDevice);
 
             // Initialize the mesh in Fourier space, and copy it to the device
             Vector<double> kx(nx);
@@ -167,6 +167,43 @@ namespace UltraCold
                     r2mod(i,j) = std::pow(x(i),2)+std::pow(y(j),2);
             cudaMalloc(&r2mod_d,npoints*sizeof(double));
             cudaMemcpy(r2mod_d,r2mod.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
+
+            //////////////////////////////////////////////////////////////////
+            // Initialize the Fourier transform of the dipolar potential
+            //////////////////////////////////////////////////////////////////
+
+            double epsilon_dd = 0.0;
+            if(scattering_length != 0)
+                epsilon_dd = dipolar_length/scattering_length;
+
+            Vtilde.reinit(nx,ny);
+            for (int i = 0; i < nx; ++i)
+                for (int j = 0; j < ny; ++j)
+                {
+                    double qd = TWOPI * kx[i] / sqrt(2);
+                    double q  = TWOPI * sqrt(pow(kx[i], 2) + pow(ky[j], 2)) / sqrt(2);
+                    double value =
+                            sqrt(8*PI) * scattering_length * epsilon_dd *
+                            (
+                                    (-1 + 3*sqrt(PI) * pow(qd,2)/q * exp(pow(q,2)) * erfc(q)) * pow(sin(alpha),2) +
+                                    ( 2 - 3*sqrt(PI) * q * exp(pow(q,2)) * erfc(q)) * pow(cos(alpha),2)
+                            );
+                    if (isnan(value) && kx(i) == 0 && ky(j) == 0)
+                        Vtilde(i, j) = sqrt(8*PI)*scattering_length*epsilon_dd*(3*std::pow(std::cos(alpha),2)-1);
+                    else if(isnan(value) && kx(i) != 0 && ky(j) != 0)
+                        Vtilde(i,j) = 0.0;
+                    else
+                        Vtilde(i, j) = value;
+                }
+
+            cudaMalloc(&Vtilde_d,npoints*sizeof(cuDoubleComplex));
+            cudaMemcpy(Vtilde_d,Vtilde.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
+            cudaMalloc(&Phi_dd_d,npoints*sizeof(cuDoubleComplex));
+
+            // Scattering length is divided by sqrt(2PI) here, since in the propagators it is multiplied by 4PI
+            scattering_length *= 1./sqrt(2*PI);
+            cudaMemcpy(scattering_length_d, &scattering_length,1*sizeof(double),cudaMemcpyHostToDevice);
+
         }
 
         /////////////////////////////////////////////////////////////////////////////////////

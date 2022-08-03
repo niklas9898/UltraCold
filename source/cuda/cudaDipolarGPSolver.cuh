@@ -51,7 +51,8 @@ namespace UltraCold
                                 Vector<std::complex<double>>& psi_0,
                                 Vector<double>&               Vext,
                                 double                        scattering_length,
-                                double                        dipolar_length);  // 2D problems
+                                double                        dipolar_length,
+                                double                        alpha);  // 2D problems
                 DipolarGPSolver(Vector<double>&               x,
                                 Vector<double>&               y,
                                 Vector<double>&               z,
@@ -77,7 +78,7 @@ namespace UltraCold
                                                                                      int write_output_every);
 
                 // Solve the GPE in real-time using the classical operator-splitting method.
-                // The intermidiate PDE is solved using simply Fourier transforms
+                // The intermediate PDE is solved using simply Fourier transforms
                 void run_operator_splitting(int number_of_time_steps,
                                             double time_step,
                                             std::ostream& output_stream,
@@ -124,7 +125,7 @@ namespace UltraCold
                 Vector<double> x_axis,y_axis,z_axis,r2mod,kx_axis,ky_axis,kz_axis;
                 Vector<std::complex<double>> Vtilde;   // This contains the Fourier transform of the dipolar potential
 
-                // Other cuda necessary data memebers
+                // Other cuda necessary data members
                 int gridSize;  // Number of cuda blocks to use
                 int blockSize; // size of each cuda block, i.e., number of threads per block
 
@@ -146,7 +147,8 @@ namespace UltraCold
                 bool problem_is_1d=false;
                 bool problem_is_2d=false;
                 bool problem_is_3d=false;
-		int write_output_every;
+
+                int write_output_every;
 
                 // Eigenstates of the harmonic oscillator, useful for TWA
                 std::vector<Vector<double>> eigenstates_harmonic_oscillator;
