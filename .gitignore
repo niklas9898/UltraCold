@@ -6,5 +6,4 @@
 TODOs*
 .idea
 /base/bundled/arpack-ng/build/
-*cuda*
 /base/bundled/arpack-ng-success.txt
