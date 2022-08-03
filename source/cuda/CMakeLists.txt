@@ -2,24 +2,15 @@
 # Configure and build cuda libraries for Ultracold
 #######################################################
 
-#--------------
-# Enable CUDA
-#--------------
-
-find_package(CUDA 11.0 REQUIRED)
-enable_language(CUDA)
-include(CheckLanguage)
-check_language(CUDA)
-
 #-----------------------
 # Create the library
 #-----------------------
 
 add_library(cudaSolvers
         STATIC
-        ${CMAKE_SOURCE_DIR}/source/cuda/cudaDeviceVector.cu
         ${CMAKE_SOURCE_DIR}/source/cuda/cudaGPSolver.cu
-)
+        ${CMAKE_SOURCE_DIR}/source/cuda/kernel_utilities.cu
+        ${CMAKE_SOURCE_DIR}/source/cuda/cudaDipolarGPSolver.cu)
 
 #----------------------------
 # Set the include directories
@@ -40,7 +31,8 @@ target_link_libraries(cudaSolvers PUBLIC utilities)
 #----------------------
 # Link CUDA libraries
 #----------------------
-target_link_libraries(cudaSolvers PUBLIC ${CUDA_LIBRARIES})
+
+target_link_libraries(cudaSolvers PUBLIC "${CUDA_LIBRARIES}")
 
 #---------------------------------------
 # Allow CUDA to resolve its own symbols
@@ -77,4 +69,5 @@ install(TARGETS cudaSolvers
         EXPORT UltraColdTargets
 )
 
-install(FILES cudaDeviceVector.cuh DESTINATION include)
+install(FILES cudaGPSolver.cuh DESTINATION include)
+install(FILES cudaDipolarGPSolver.cuh DESTINATION include)

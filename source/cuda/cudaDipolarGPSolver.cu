@@ -15,7 +15,7 @@
 *
 *--------------------------------------------------------------------------------*/
 
-#include "cudaGPSolver.cuh"
+#include "cudaDipolarGPSolver.cuh"
 #include "mesh_fourier_space.hpp"
 #include "DataOut.hpp"
 #include "cub/cub.cuh"
@@ -32,139 +32,16 @@ namespace UltraCold
 
         /////////////////////////////////////////////////////////////////////////////////////
         /**
-         * @brief Constructor for 1d problems
-         * */
-        /////////////////////////////////////////////////////////////////////////////////////
-
-        GPSolver::GPSolver(Vector<double> &x,
-                           Vector<std::complex<double>> &psi_0,
-                           Vector<double> &Vext,
-                           double scattering_length)
-        {
-
-            // Check that the order of the Vectors provided is correctly 1
-            if(psi_0.order() != 1 || Vext.order() != 1)
-            {
-                std::cout
-                        << "\n\n"
-                        << "**************************************************************************\n"
-                        << "Error found in the constructor of a (cuda) GPSolver for a Gross-Pitaevskii\n"
-                        << "equation in one space dimension. The orders of the Vectors provided as\n"
-                        << "input are not consistent. In particular, initial wave function and external\n"
-                        << "potential provided are not 1-dimensional.\n"
-                        << "Terminating the program now...\n"
-                        << "**************************************************************************\n"
-                        << "\n\n"
-                        <<
-                        std::endl;
-                exit(1);
-            }
-            problem_is_1d=true;
-
-            // Check the dimensions of the Vectors provided are consistent
-            nx = x.extent(0);
-            ny = 0;
-            nz = 0;
-            npoints=nx;
-            if(psi_0.extent(0) != nx || Vext.extent(0) != nx)
-            {
-                std::cout
-                        << "\n\n"
-                        << "**************************************************************************\n"
-                        << "Error found in the constructor of a (cuda) GPSolver for a Gross-Pitaevskii\n"
-                        << "equation in one space dimension. The dimensions of the Vectors provided as\n"
-                        << "input are not consistent.\n"
-                        << "Terminating the program now...\n"
-                        << "**************************************************************************\n"
-                        << "\n\n"
-                        <<
-                        std::endl;
-                exit(1);
-            }
-
-            // Initialize the thread grid, i.e. choose the number of cuda threads per block and the number of blocks.
-            blockSize = 512;
-            gridSize = (npoints + blockSize - 1) / blockSize;
-
-            // Allocate memory for all device arrays
-            cudaMalloc(&external_potential_d,nx*sizeof(double));
-            cudaMalloc(&kmod2_d,             nx*sizeof(double));
-            cudaMalloc(&density_d,           nx*sizeof(double));
-            cudaMalloc(&wave_function_d,     nx*sizeof(cuDoubleComplex));
-            cudaMalloc(&hpsi_d,              nx*sizeof(cuDoubleComplex));
-            cudaMalloc(&ft_wave_function_d,  nx*sizeof(cuDoubleComplex));
-
-            // Allocate space for device and managed scalars
-            cudaMalloc(&scattering_length_d,sizeof(double));
-            cudaMallocManaged(&norm_d,              sizeof(double));
-            cudaMallocManaged(&initial_norm_d,      sizeof(double));
-            cudaMallocManaged(&chemical_potential_d,sizeof(double));
-
-            // Get the first necessary copies of input data from host to device
-            cudaMemcpy(external_potential_d,Vext.data(),       npoints*sizeof(double),         cudaMemcpyHostToDevice);
-            cudaMemcpy(wave_function_d,     psi_0.data(),      npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
-            cudaMemcpy(scattering_length_d, &scattering_length,1      *sizeof(double),         cudaMemcpyHostToDevice);
-
-            // Initialize the mesh in Fourier space, and copy it to the device
-            Vector<double> kx(nx);
-            Vector<double> kmod2(nx);
-            create_mesh_in_Fourier_space(x,kx);
-            for (size_t i = 0; i < nx; ++i) kmod2(i) = std::pow(kx(i),2);
-            cudaMemcpy(kmod2_d,  kmod2.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
-
-            // Initialize space steps
-            dx = x(1)-x(0);
-            dv = dx;
-
-            // Initialize the device reduce kernel
-            cub::DeviceReduce::Sum(temporary_storage_d,size_temporary_storage,density_d,norm_d,npoints);
-            cudaDeviceSynchronize();
-
-            // Allocate temporary storage memory, required for reduction kernels
-            cudaMalloc(&temporary_storage_d,size_temporary_storage);
-            cudaDeviceSynchronize();
-
-            // Calculate initial norm
-            calculate_density(density_d,wave_function_d,npoints);
-            cudaDeviceSynchronize();
-            cub::DeviceReduce::Sum(temporary_storage_d,size_temporary_storage,density_d,norm_d,npoints);
-            cudaDeviceSynchronize();
-            norm_d[0]=norm_d[0]*dv;
-            initial_norm_d[0]=norm_d[0];
-            std::cout << "Initial norm: " << initial_norm_d[0] << std::endl;
-
-            // Initialize the wave function to return as a result
-            result_wave_function.reinit(nx);
-
-            // Initialize the host and device vectors containing the mesh axis. This can be useful in particular for
-            // data output
-            x_axis.reinit(nx);
-            x_axis=x;
-            kx_axis.reinit(nx);
-            kx_axis=kx;
-            cudaMalloc(&x_axis_d,nx*sizeof(double));
-            cudaMemcpy(x_axis_d,x_axis.data(),nx*sizeof(double),cudaMemcpyHostToDevice);
-            cudaMalloc(&kx_axis_d,nx*sizeof(double));
-            cudaMemcpy(kx_axis_d,kx_axis.data(),nx*sizeof(double),cudaMemcpyHostToDevice);
-            r2mod.reinit(nx);
-            for(int i = 0; i < nx; ++i)
-                r2mod[i] = std::pow(x(i),2);
-            cudaMalloc(&r2mod_d,nx*sizeof(double));
-            cudaMemcpy(r2mod_d,r2mod.data(),nx*sizeof(double),cudaMemcpyHostToDevice);
-
-        }
-
-        /////////////////////////////////////////////////////////////////////////////////////
-        /**
          * @brief Constructor for 2d problems
          * */
         /////////////////////////////////////////////////////////////////////////////////////
 
-        GPSolver::GPSolver(Vector<double> &x,
-                           Vector<double> &y,
-                           Vector<std::complex<double>> &psi_0,
-                           Vector<double> &Vext,
-                           double scattering_length)
+        DipolarGPSolver::DipolarGPSolver(Vector<double> &x,
+                                         Vector<double> &y,
+                                         Vector<std::complex<double>> &psi_0,
+                                         Vector<double> &Vext,
+                                         double scattering_length,
+                                         double dipolar_length)
         {
 
             // Check that the order of the Vectors provided is correctly 1
@@ -240,7 +117,7 @@ namespace UltraCold
                 for (size_t j = 0; j < ny; ++j)
                     kmod2(i,j) = std::pow(kx(i),2) +
                                  std::pow(ky(j),2);
-            cudaMemcpy(kmod2_d,kmod2.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
+            cudaMemcpy(kmod2_d,  kmod2.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
 
             // Initialize space steps
             dx = x(1)-x(0);
@@ -298,12 +175,15 @@ namespace UltraCold
          * */
         /////////////////////////////////////////////////////////////////////////////////////
 
-        GPSolver::GPSolver(Vector<double> &x,
-                           Vector<double> &y,
-                           Vector<double> &z,
-                           Vector<std::complex<double>> &psi_0,
-                           Vector<double> &Vext,
-                           double scattering_length)
+        DipolarGPSolver::DipolarGPSolver(Vector<double> &x,
+                                         Vector<double> &y,
+                                         Vector<double> &z,
+                                         Vector<std::complex<double>> &psi_0,
+                                         Vector<double> &Vext,
+                                         double scattering_length,
+                                         double dipolar_length,
+                                         double theta_mu,
+                                         double phi_mu)
         {
 
             // Check that the order of the Vectors provided is correctly 1
@@ -440,12 +320,63 @@ namespace UltraCold
             for(int i = 0; i < nx; ++i)
                 for(int j = 0; j < ny; ++j)
                     for(int k = 0; k < nz; ++k)
-                        r2mod(i,j,k) = std::pow(x(i),2)+std::pow(y(j),2)+std::pow(z(k),2);
+                        r2mod(i,j,k) = std::pow(x(i),2);
             cudaMalloc(&r2mod_d,npoints*sizeof(double));
             cudaMemcpy(r2mod_d,r2mod.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
 
-	    // Initialize a vector to output the wave function
-	    wave_function_output.reinit(nx,ny,nz);
+            // Initialize the Fourier transform of the dipolar potential
+            cudaMallocManaged(&epsilon_dd_d,sizeof(double));
+            epsilon_dd_d[0] = 0.0;
+            if(scattering_length != 0)
+                epsilon_dd_d[0] = dipolar_length/scattering_length;
+            Vtilde.reinit(nx,ny,nz);
+            for (int i = 0; i < nx; ++i)
+                for (int j = 0; j < ny; ++j)
+                    for (int k = 0; k < nz; ++k)
+                    {
+                        double aux = TWOPI * (
+                                kx[i]*sin(theta_mu)*cos(phi_mu) +
+                                ky[j]*sin(theta_mu)*sin(phi_mu)+
+                                kz[k]*cos(theta_mu));
+                        double aux1 = TWOPI * sqrt(pow(kx[i], 2) + pow(ky[j], 2) + pow(kz[k], 2));
+                        if (aux1 <= 1.E-6)
+                            Vtilde(i,j,k) = -4*PI*scattering_length*epsilon_dd_d[0];
+                        else
+                            Vtilde(i,j,k) =
+                                    12.0 * PI * scattering_length * epsilon_dd_d[0] * (pow(aux/aux1,2)-1.0/3.0);
+                    }
+            cudaMalloc(&Vtilde_d,npoints*sizeof(cuDoubleComplex));
+            cudaMemcpy(Vtilde_d,Vtilde.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
+            cudaMalloc(&Phi_dd_d,npoints*sizeof(cuDoubleComplex));
+
+            // Initialize gamma(\epsilon_dd) for the LHY correction
+            cudaMallocManaged(&gamma_epsilondd_d,sizeof(double));
+            gamma_epsilondd_d[0] = 0.0;
+            if (epsilon_dd_d[0] != 0)
+            {
+                gamma_epsilondd_d[0] = 64.0*sqrt(PI)/3*sqrt(pow(scattering_length,5));
+                double F_epsilon_dd=0.0;
+                int n_theta=1000;
+                double d_theta=PI/(n_theta-1);
+
+                std::complex<double> csum;
+                std::complex<double> caux;
+                csum={0.0,0.0};
+                for (int i = 0; i < n_theta; ++i)
+                {
+                    double theta=i*d_theta;
+                    caux = pow(1.0+epsilon_dd_d[0]*(3.0*pow(cos(theta),2)-1.0),5);
+                    caux = sqrt(caux);
+                    csum += sin(theta)*caux;
+                }
+                csum *= d_theta;
+                F_epsilon_dd = csum.real();
+                gamma_epsilondd_d[0] *= F_epsilon_dd;
+            }
+
+            // Initialize the wave function for the output
+            wave_function_output.reinit(nx,ny,nz);
+
         }
 
         /////////////////////////////////////////////////////////////////////////////////////
@@ -455,7 +386,7 @@ namespace UltraCold
          * */
         /////////////////////////////////////////////////////////////////////////////////////
 
-        GPSolver::~GPSolver()
+        DipolarGPSolver::~DipolarGPSolver()
         {
             cudaFree(external_potential_d);
             cudaFree(density_d);
@@ -478,7 +409,10 @@ namespace UltraCold
             cudaFree(beta_d);
             cudaFree(time_step_d);
             cudaFree(temporary_storage_d);
-
+            cudaFree(Vtilde_d);
+            cudaFree(Phi_dd_d);
+            cudaFree(epsilon_dd_d);
+            cudaFree(gamma_epsilondd_d);
         }
 
 
@@ -487,7 +421,7 @@ namespace UltraCold
          *
          * */
 
-        void GPSolver::calculate_density(double *density, cuDoubleComplex *wave_function,int size)
+        void DipolarGPSolver::calculate_density(double *density, cuDoubleComplex *wave_function,int size)
         {
             KernelUtilities::square_vector<<<gridSize,blockSize>>>(density,wave_function,size);
         }
@@ -504,18 +438,16 @@ namespace UltraCold
         /////////////////////////////////////////////////////////////////////////////////////
 
         std::tuple<Vector<std::complex<double>>, double>
-                GPSolver::run_gradient_descent(int max_num_iter,
-                                               double alpha,
-                                               double beta,
-                                               std::ostream &output_stream,
-                                               int write_output_every)
+        DipolarGPSolver::run_gradient_descent(int max_num_iter,
+                                              double alpha,
+                                              double beta,
+                                              std::ostream &output_stream,
+                                              int write_output_every)
 
         {
             // Initialize the fft plan required for the calculation of the laplacian
             cufftHandle ft_plan;
-            if(problem_is_1d)
-                cufftPlan1d(&ft_plan,nx,CUFFT_Z2Z,1);
-            else if(problem_is_2d)
+            if(problem_is_2d)
                 cufftPlan2d(&ft_plan,nx,ny,CUFFT_Z2Z);
             else if(problem_is_3d)
                 cufftPlan3d(&ft_plan,nx,ny,nz,CUFFT_Z2Z);
@@ -533,6 +465,8 @@ namespace UltraCold
             cuDoubleComplex* psi_old;
             cudaMalloc(&psi_new,npoints*sizeof(cuDoubleComplex));
             cudaMalloc(&psi_old,npoints*sizeof(cuDoubleComplex));
+            cuDoubleComplex* c_density_d;
+            cudaMalloc(&c_density_d,npoints*sizeof(cuDoubleComplex));
 
             // Loop starts here
             for (int it = 0; it < max_num_iter; ++it)
@@ -548,12 +482,27 @@ namespace UltraCold
                 KernelUtilities::rescale<<<gridSize,blockSize>>>(hpsi_d,0.5*pow(TWOPI,2)/npoints,npoints);
                 cudaDeviceSynchronize();
 
+                // Calculate the dipolar potential
+                KernelUtilities::square_vector<<<gridSize,blockSize>>>(c_density_d,wave_function_d,npoints);
+                cudaDeviceSynchronize();
+                cufftExecZ2Z(ft_plan,c_density_d,ft_wave_function_d,CUFFT_FORWARD);
+                cudaDeviceSynchronize();
+                KernelUtilities::vector_multiplication<<<gridSize,blockSize>>>(ft_wave_function_d,
+                                                                               Vtilde_d,
+                                                                               npoints);
+                cudaDeviceSynchronize();
+                cufftExecZ2Z(ft_plan,ft_wave_function_d,Phi_dd_d,CUFFT_INVERSE);
+                cudaDeviceSynchronize();
+                KernelUtilities::rescale<<<gridSize,blockSize>>>(Phi_dd_d,1./npoints,npoints);
+
                 // Calculate the rest of H|psi>
-                KernelUtilities::step_2_hpsi<<<gridSize,blockSize>>>(hpsi_d,
-                                                                    wave_function_d,
-                                                                    external_potential_d,
-                                                                    scattering_length_d,
-                                                                    npoints);
+                KernelUtilities::step_2_dipolar_hpsi<<<gridSize,blockSize>>>(hpsi_d,
+                                                                             wave_function_d,
+                                                                             external_potential_d,
+                                                                             Phi_dd_d,
+                                                                             scattering_length_d,
+                                                                             gamma_epsilondd_d,
+                                                                             npoints);
                 cudaDeviceSynchronize();
 
                 // Perform a gradient descent (plus heavy-ball) step
@@ -594,6 +543,7 @@ namespace UltraCold
             // Free the remaining arrays from the device
             cudaFree(psi_new);
             cudaFree(psi_old);
+            cudaFree(c_density_d);
 
             // Copy out the results
             cudaMemcpy(result_wave_function.data(),
@@ -615,7 +565,7 @@ namespace UltraCold
          * */
         /////////////////////////////////////////////////////////////////////////////////////
 
-        void GPSolver::write_gradient_descent_output(int it)
+        void DipolarGPSolver::write_gradient_descent_output(int it)
         {
             std::cout << it << " " << chemical_potential_d[0] << std::endl;
         }
@@ -626,8 +576,10 @@ namespace UltraCold
          * */
         /////////////////////////////////////////////////////////////////////////////////////
 
-        void GPSolver::run_operator_splitting(int number_of_time_steps, double time_step, std::ostream &output_stream,
-                                              int write_output_every)
+        void DipolarGPSolver::run_operator_splitting(int number_of_time_steps,
+                                                     double time_step,
+                                                     std::ostream &output_stream,
+                                                     int write_output_every)
         {
             // Copy input data into the device
             cudaMallocManaged(&time_step_d,sizeof(double));
@@ -635,17 +587,19 @@ namespace UltraCold
 
             // Initialize the fft plan required for the calculation of the laplacian
             cufftHandle ft_plan;
-            if(problem_is_1d)
-                cufftPlan1d(&ft_plan,nx,CUFFT_Z2Z,1);
-            else if(problem_is_2d)
+            if(problem_is_2d)
                 cufftPlan2d(&ft_plan,nx,ny,CUFFT_Z2Z);
             else if(problem_is_3d)
                 cufftPlan3d(&ft_plan,nx,ny,nz,CUFFT_Z2Z);
+            cuDoubleComplex* c_density_d;
+            cudaMalloc(&c_density_d,npoints*sizeof(cuDoubleComplex));
+
+            // Initialize other variables
+            this->write_output_every=write_output_every;
 
             //----------------------------------------------------//
             //    Here the operator-splitting iterations start    //
             //----------------------------------------------------//
-
             for (size_t it = 0; it < number_of_time_steps; ++it)
             {
 
@@ -653,12 +607,28 @@ namespace UltraCold
                 if(it % write_output_every == 0)
                     write_operator_splitting_output(it);
 
+                // Calculate the current value of dipolar potential
+                KernelUtilities::square_vector<<<gridSize,blockSize>>>(c_density_d,wave_function_d,npoints);
+                cudaDeviceSynchronize();
+                cufftExecZ2Z(ft_plan,c_density_d,ft_wave_function_d,CUFFT_FORWARD);
+                cudaDeviceSynchronize();
+                KernelUtilities::vector_multiplication<<<gridSize,blockSize>>>(ft_wave_function_d,
+                                                                               Vtilde_d,
+                                                                               npoints);
+                cudaDeviceSynchronize();
+                cufftExecZ2Z(ft_plan,ft_wave_function_d,Phi_dd_d,CUFFT_INVERSE);
+                cudaDeviceSynchronize();
+                KernelUtilities::rescale<<<gridSize,blockSize>>>(Phi_dd_d,1./npoints,npoints);
+                cudaDeviceSynchronize();
+
                 // Solve step-1 of operator splitting, i.e. the one NOT involving Fourier transforms
-                KernelUtilities::step_1_operator_splitting<<<gridSize,blockSize>>>(wave_function_d,
-                                                                                   external_potential_d,
-                                                                                   time_step_d,
-                                                                                   scattering_length_d,
-                                                                                   npoints);
+                KernelUtilities::step_1_operator_splitting_dipolars<<<gridSize,blockSize>>>(wave_function_d,
+                                                                                            external_potential_d,
+                                                                                            Phi_dd_d,
+                                                                                            time_step_d,
+                                                                                            scattering_length_d,
+                                                                                            gamma_epsilondd_d,
+                                                                                            npoints);
                 cudaDeviceSynchronize();
 
                 // Solve step-2 of operator splitting, i.e. the one actually involving Fourier transforms
@@ -673,17 +643,9 @@ namespace UltraCold
                 cudaDeviceSynchronize();
                 KernelUtilities::rescale<<<gridSize,blockSize>>>(wave_function_d,1./npoints,npoints);
                 cudaDeviceSynchronize();
-            cudaMemcpy(wave_function_output.data(),
-                       wave_function_d,
-                       npoints*sizeof(cuDoubleComplex),
-                       cudaMemcpyDeviceToHost);
-            cudaDeviceSynchronize();
-            RealSpaceOutput::DataOut psi_out;
-            psi_out.set_output_name("psi_step2"+std::to_string(it/write_output_every));
-            psi_out.write_slice1d_csv(x_axis,wave_function_output,"x");
 
             }
-
+            cudaFree(c_density_d);
         }
 
         /**
@@ -692,7 +654,7 @@ namespace UltraCold
          *
          * */
 
-        void GPSolver::write_operator_splitting_output(int it)
+        void DipolarGPSolver::write_operator_splitting_output(int it)
         {
             KernelUtilities::vector_average<<<gridSize,blockSize>>>(density_d,r2mod_d,wave_function_d,npoints);
             cudaDeviceSynchronize();
@@ -707,16 +669,22 @@ namespace UltraCold
 
         /**
          *
-         * @brief Reinit method
+         * @brief Reinit methods
          *
          * */
 
-        void GPSolver::reinit(Vector<std::complex<double>> &psi, Vector<double> &Vext)
+        void DipolarGPSolver::reinit(Vector<std::complex<double>> &psi, Vector<double> &Vext)
         {
-
             cudaMemcpy(wave_function_d,psi.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
             cudaMemcpy(external_potential_d,Vext.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
 
+        }
+
+        void DipolarGPSolver::reinit(Vector<std::complex<double>> &psi, Vector<double> &Vext,double scattering_length)
+        {
+            cudaMemcpy(wave_function_d,psi.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
+            cudaMemcpy(external_potential_d,Vext.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
+            cudaMemcpy(scattering_length_d,&scattering_length,sizeof(double),cudaMemcpyHostToDevice);
         }
     }
 }

@@ -15,8 +15,8 @@
 *
 *--------------------------------------------------------------------------------*/
 
-#ifndef ULTRACOLD_CUDA_GP_SOLVER
-#define ULTRACOLD_CUDA_GP_SOLVER
+#ifndef ULTRACOLD_CUDA_DIPOLAR_GP_SOLVER
+#define ULTRACOLD_CUDA_DIPOLAR_GP_SOLVER
 
 #include <vector>
 #include "cuComplex.h"
@@ -26,7 +26,7 @@ namespace UltraCold
 {
 
     /**
-     * @brief This is a simple solver for the GP equation using CUDA
+     * @brief This is a simple solver for the Dipolar GP equation using CUDA
      * @author Santo Maria Roccuzzo (santom.roccuzzo@gmail.com)
      *
      * */
@@ -41,32 +41,33 @@ namespace UltraCold
          *
          * */
 
-        class GPSolver
+        class DipolarGPSolver
         {
             public:
 
                 // Constructors
-                GPSolver(Vector<double>&               x,
-                         Vector<std::complex<double>>& psi_0,
-                         Vector<double>&               Vext,
-                         double                        scattering_length);  // 1D problems
-                GPSolver(Vector<double>&               x,
-                         Vector<double>&               y,
-                         Vector<std::complex<double>>& psi_0,
-                         Vector<double>&               Vext,
-                         double                        scattering_length);  // 2D problems
-                GPSolver(Vector<double>&               x,
-                         Vector<double>&               y,
-                         Vector<double>&               z,
-                         Vector<std::complex<double>>& psi_0,
-                         Vector<double>&               Vext,
-                         double                        scattering_length);  // 3D problems
+                DipolarGPSolver(Vector<double>&               x,
+                                Vector<double>&               y,
+                                Vector<std::complex<double>>& psi_0,
+                                Vector<double>&               Vext,
+                                double                        scattering_length,
+                                double                        dipolar_length);  // 2D problems
+                DipolarGPSolver(Vector<double>&               x,
+                                Vector<double>&               y,
+                                Vector<double>&               z,
+                                Vector<std::complex<double>>& psi_0,
+                                Vector<double>&               Vext,
+                                double                        scattering_length,
+                                double                        dipolar_length,
+                                double                        theta_mu,
+                                double                        phi_mu);  // 3D problems
 
                 // Destructor
-                ~GPSolver();
+                ~DipolarGPSolver();
 
                 // Re-initializers
                 void reinit(Vector<std::complex<double>>& psi, Vector<double>& Vext);
+                void reinit(Vector<std::complex<double>>& psi, Vector<double>& Vext,double scattering_length);
 
                 // Calculate a ground-state solution
                 std::tuple<Vector<std::complex<double>>,double> run_gradient_descent(int    max_num_iter,
@@ -115,13 +116,17 @@ namespace UltraCold
                 void* temporary_storage_d = nullptr; // This will be initialized by cub. Needed as temporary storage
                 size_t size_temporary_storage = 0;   // This will also be initialized by cub with the future size of
                                                      // the problem.
+                cuDoubleComplex* Vtilde_d;
+                cuDoubleComplex* Phi_dd_d;
+                double* epsilon_dd_d;
+                double* gamma_epsilondd_d;
 
                 Vector<double> x_axis,y_axis,z_axis,r2mod,kx_axis,ky_axis,kz_axis;
+                Vector<std::complex<double>> Vtilde;   // This contains the Fourier transform of the dipolar potential
 
                 // Other cuda necessary data memebers
                 int gridSize;  // Number of cuda blocks to use
                 int blockSize; // size of each cuda block, i.e., number of threads per block
-
 
                 // Member functions calling kernels
                 void calculate_density(double* density, cuDoubleComplex* wave_function, int size);
@@ -137,20 +142,20 @@ namespace UltraCold
                 double dv = 1.0;
 
                 // Other useful parameters
-
                 int last_iteration_number;
                 bool problem_is_1d=false;
                 bool problem_is_2d=false;
                 bool problem_is_3d=false;
+		int write_output_every;
 
                 // Eigenstates of the harmonic oscillator, useful for TWA
                 std::vector<Vector<double>> eigenstates_harmonic_oscillator;
 
+                // Wave function for output
+                Vector<std::complex<double>> wave_function_output;
+
                 // Wave function to return
                 Vector<std::complex<double>> result_wave_function;
-
-		// Wave function to output
-		Vector<std::complex<double>> wave_function_output;
 
         };
     }
