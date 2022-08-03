@@ -28,6 +28,11 @@
 #include "GPSolvers.hpp"
 #include "BogolyubovSolvers.hpp"
 
+#ifdef ULTRACOLD_WITH_CUDA
+#include "cudaGPSolver.cuh"
+#include "cudaDipolarGPSolver.cuh"
+#endif
+
 // A few useful macros, defining constants
 
 #ifndef ULTRACOLD_PI
