@@ -93,7 +93,6 @@ if (ULTRACOLD_WITH_CUDA)
 	add_subdirectory(${CMAKE_SOURCE_DIR}/source/cuda)
 endif ()
 
-
 #-----------------------------------
 # Include install instructions
 #-----------------------------------
