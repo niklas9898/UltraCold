@@ -15,12 +15,14 @@
 *
 *--------------------------------------------------------------------------------*/
 
+#include <random>
 #include "cudaDipolarGPSolver.cuh"
 #include "mesh_fourier_space.hpp"
 #include "DataOut.hpp"
 #include "cub/cub.cuh"
 #include "cufft.h"
 #include "kernel_utilities.cuh"
+#include "DFtCalculator.hpp"
 
 #define PI 3.1415926535897932384626433
 #define TWOPI (2*PI)
@@ -117,7 +119,7 @@ namespace UltraCold
                 for (size_t j = 0; j < ny; ++j)
                     kmod2(i,j) = std::pow(kx(i),2) +
                                  std::pow(ky(j),2);
-            cudaMemcpy(kmod2_d,  kmod2.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
+            cudaMemcpy(kmod2_d,kmod2.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
 
             // Initialize space steps
             dx = x(1)-x(0);
@@ -200,9 +202,16 @@ namespace UltraCold
             cudaMemcpy(Vtilde_d,Vtilde.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
             cudaMalloc(&Phi_dd_d,npoints*sizeof(cuDoubleComplex));
 
+            // Initialize gamma(\epsilon_dd) for the LHY correction
+            cudaMallocManaged(&gamma_epsilondd_d,sizeof(double));
+            gamma_epsilondd_d[0] = 0.0;
+
             // Scattering length is divided by sqrt(2PI) here, since in the propagators it is multiplied by 4PI
             scattering_length *= 1./sqrt(2*PI);
             cudaMemcpy(scattering_length_d, &scattering_length,1*sizeof(double),cudaMemcpyHostToDevice);
+
+            // Initialize the wave function for the output
+            wave_function_output.reinit(nx,ny);
 
         }
 
@@ -573,7 +582,7 @@ namespace UltraCold
 
                 // Eventually write some output
                 if(it % write_output_every == 0)
-                    write_gradient_descent_output(it);
+                    write_gradient_descent_output(it,output_stream);
 
             }
 
@@ -602,9 +611,10 @@ namespace UltraCold
          * */
         /////////////////////////////////////////////////////////////////////////////////////
 
-        void DipolarGPSolver::write_gradient_descent_output(int it)
+        void DipolarGPSolver::write_gradient_descent_output(size_t        iteration_number,
+                                                            std::ostream& output_stream)
         {
-            std::cout << it << " " << chemical_potential_d[0] << std::endl;
+            output_stream << iteration_number << " " << chemical_potential_d[0] << std::endl;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////
@@ -642,7 +652,13 @@ namespace UltraCold
 
                 // Write output starting from the very first iteration
                 if(it % write_output_every == 0)
-                    write_operator_splitting_output(it);
+                {
+                    cudaMemcpy(wave_function_output.data(),
+                               wave_function_d,
+                               npoints*sizeof(cuDoubleComplex),
+                               cudaMemcpyDeviceToHost);
+                    write_operator_splitting_output(it,output_stream);
+                }
 
                 // Calculate the current value of dipolar potential
                 KernelUtilities::square_vector<<<gridSize,blockSize>>>(c_density_d,wave_function_d,npoints);
@@ -691,17 +707,28 @@ namespace UltraCold
          *
          * */
 
-        void DipolarGPSolver::write_operator_splitting_output(int it)
+        void DipolarGPSolver::write_operator_splitting_output(size_t        iteration_number,
+                                                              std::ostream& output_stream)
         {
-            KernelUtilities::vector_average<<<gridSize,blockSize>>>(density_d,r2mod_d,wave_function_d,npoints);
-            cudaDeviceSynchronize();
-            double* x2m_d;
-            cudaMallocManaged(&x2m_d,sizeof(double));
-            cub::DeviceReduce::Sum(temporary_storage_d,size_temporary_storage,density_d,x2m_d,npoints);
-            cudaDeviceSynchronize();
-            x2m_d[0] = x2m_d[0]/norm_d[0];
-            std::cout << it << " " << it*time_step_d[0] << " " << x2m_d[0] << std::endl;
-            cudaFree(x2m_d);
+//            KernelUtilities::vector_average<<<gridSize,blockSize>>>(density_d,r2mod_d,wave_function_d,npoints);
+//            cudaDeviceSynchronize();
+//            double* x2m_d;
+//            cudaMallocManaged(&x2m_d,sizeof(double));
+//            cub::DeviceReduce::Sum(temporary_storage_d,size_temporary_storage,density_d,x2m_d,npoints);
+//            cudaDeviceSynchronize();
+//            x2m_d[0] = x2m_d[0]/norm_d[0];
+//            std::cout << it << " " << it*time_step_d[0] << " " << x2m_d[0] << std::endl;
+//            cudaFree(x2m_d);
+
+            cudaMemcpy(wave_function_output.data(),
+                       wave_function_d,
+                       npoints*sizeof(cuDoubleComplex),
+                       cudaMemcpyDeviceToHost);
+
+            RealSpaceOutput::DataOut wf_out;
+            wf_out.set_output_name("psi"+std::to_string(iteration_number/write_output_every));
+            wf_out.write_vtk(x_axis,y_axis,wave_function_output,"psi");
+
         }
 
         /**
@@ -722,6 +749,92 @@ namespace UltraCold
             cudaMemcpy(wave_function_d,psi.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
             cudaMemcpy(external_potential_d,Vext.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
             cudaMemcpy(scattering_length_d,&scattering_length,sizeof(double),cudaMemcpyHostToDevice);
+        }
+
+        /**
+         * @brief set initial conditions for a truncated wigner run
+         * */
+
+        void DipolarGPSolver::set_tw_initial_conditions(bool system_is_trapped)
+        {
+
+            // Need to get in a copy of the scattering length
+            double scattering_length;
+            cudaMemcpy(&scattering_length,scattering_length_d,sizeof(double),cudaMemcpyDeviceToHost);
+
+            // First, consider the case in which the system is not trapped
+
+            if (!system_is_trapped) {
+
+                // Obtain a random seed from the clock
+                std::default_random_engine generator;
+                typedef std::chrono::high_resolution_clock clock;
+                clock::time_point beginning = clock::now();
+                clock::duration d = clock::now() - beginning;
+                generator.seed(d.count());
+                std::uniform_real_distribution<double> distribution(-1, 1);
+
+                // Generate the alphas
+                double u, v, s; // useful additional variables that we use to generate our random numbers
+                std::complex<double> alphak;
+
+                // Now refill the initial wave function with the single particle modes
+                if (problem_is_2d)
+                {
+
+                    Vector<std::complex<double>> psitilde_tw(nx, ny);
+                    Vector<std::complex<double>> psi(nx, ny);
+                    MKLWrappers::DFtCalculator dft_tw(psi, psitilde_tw);
+
+                    cudaMemcpy(psi.data(), wave_function_d, npoints * sizeof(cuDoubleComplex), cudaMemcpyDeviceToHost);
+
+                    dft_tw.compute_forward();
+
+                    double density = initial_norm_d[0] / (4. * x_axis(nx - 1) * y_axis(ny - 1));
+                    double eps_k;
+                    std::complex<double> Ek, uk, vk;
+
+                    for (int i = 0; i < nx; ++i)
+                        for (int j = 0; j < ny; ++j)
+                        {
+                            do
+                            {
+                                u = distribution(generator);
+                                v = distribution(generator);
+                                s = u * u + v * v;
+                            } while (s >= 1.0 || s == 0);
+
+                            s = sqrt((-2.0 * log(s)) / s);
+                            u = u * s;
+                            v = v * s;
+                            alphak.real(std::sqrt(0.25) * u);
+                            alphak.imag(std::sqrt(0.25) * v);
+
+                            eps_k = 0.5 * std::sqrt(pow(kx_axis[i], 2) + pow(ky_axis[j], 2));
+                            Ek = std::sqrt(eps_k*(eps_k+2*density*(4*PI*scattering_length+Vtilde(i, j))));
+                            if (eps_k == 0)
+                            {
+                                uk = 1;
+                                vk = 0;
+                            }
+                            else
+                            {
+                                uk = 0.5 * (sqrt(eps_k / Ek) + sqrt(Ek / eps_k));
+                                vk = 0.5 * (sqrt(eps_k / Ek) - sqrt(Ek / eps_k));
+                            }
+
+                            psitilde_tw(i, j) += (alphak * uk - conj(alphak) * vk);
+
+                        }
+
+                    dft_tw.compute_backward();
+
+                    cudaMemcpy(wave_function_d,psi.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
+
+                }
+
+                // We are now ready to perform a new run of the TWA.
+            }
         }
     }
 }
