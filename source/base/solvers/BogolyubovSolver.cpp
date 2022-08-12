@@ -54,7 +54,6 @@ namespace UltraCold
         {
 
             // Get necessary copies of input data
-
             this->x    = x;
             this->Vext = Vext;
             this->scattering_length = scattering_length;
@@ -65,7 +64,6 @@ namespace UltraCold
             this->eigenvectors_required=eigenvectors_required;
 
             // Check the dimensions of the Vectors provided are consistent
-
             nx = this->x.extent(0);
             ny = 0;
             nz = 0;
@@ -86,34 +84,27 @@ namespace UltraCold
             }
 
             // Initialize the mesh in Fourier space
-
             kx.reinit(nx);
             kmod2.reinit(nx);
-
             create_mesh_in_Fourier_space(this->x,kx);
-
             for (size_t i = 0; i < nx; ++i)
                 kmod2(i) = std::pow(kx(i),2);
 
             // Initialize additional workspace vectors
-
             temp.reinit(nx);
             temp2.reinit(nx);
             temp_tilde.reinit(nx);
             temp2_tilde.reinit(nx);
 
             // Initialize space steps
-
             dx = this->x(1)-this->x(0);
             dv = dx;
 
             // Initialize boolean
-
             problem_is_1d = true;
             problem_is_real = true;
 
             // Eventually resize u and v
-
             if (this->eigenvectors_required)
             {
                 u.resize(this->number_of_modes);
@@ -126,7 +117,6 @@ namespace UltraCold
             }
 
             // Reinitialize psi0
-
             this->psi0.reinit(nx);
             for (int i = 0; i < nx; ++i) this->psi0[i] = psi0[i];
 
@@ -161,7 +151,6 @@ namespace UltraCold
         {
 
             // Get necessary copies of input data
-
             this->x    = x;
             this->y    = y;
             this->Vext = Vext;
@@ -173,7 +162,6 @@ namespace UltraCold
             this->eigenvectors_required=eigenvectors_required;
 
             // Check the dimensions of the Vectors provided are consistent
-
             nx = this->x.extent(0);
             ny = this->y.extent(0);
             nz = 0;
@@ -195,7 +183,6 @@ namespace UltraCold
             }
 
             // Initialize the mesh in Fourier space
-
             kx.reinit(nx);
             ky.reinit(ny);
             kmod2.reinit(nx,ny);
@@ -207,25 +194,21 @@ namespace UltraCold
                                  std::pow(ky(j),2);
 
             // Initialize additional workspace vectors
-
             temp.reinit(nx,ny);
             temp2.reinit(nx,ny);
             temp_tilde.reinit(nx,ny);
             temp2_tilde.reinit(nx,ny);
 
             // Initialize space steps
-
             dx = this->x(1)-this->x(0);
             dy = this->y(1)-this->y(0);
             dv = dx*dy;
 
             // Initialize boolean
-
             problem_is_2d = true;
             problem_is_real = true;
 
             // Eventually resize u and v
-
             if (this->eigenvectors_required)
             {
                 u.resize(this->number_of_modes);
@@ -238,7 +221,6 @@ namespace UltraCold
             }
 
             // Reinitialize psi0
-
             this->psi0.reinit(nx,ny);
             for (int i = 0; i < nx*ny; ++i) this->psi0[i] = psi0[i];
 
@@ -276,7 +258,6 @@ namespace UltraCold
         {
 
             // Get necessary copies of input data
-
             this->x    = x;
             this->y    = y;
             this->z    = z;
@@ -289,7 +270,6 @@ namespace UltraCold
             this->eigenvectors_required=eigenvectors_required;
 
             // Check the dimensions of the Vectors provided are consistent
-
             nx = this->x.extent(0);
             ny = this->y.extent(0);
             nz = this->z.extent(0);
@@ -312,13 +292,11 @@ namespace UltraCold
             }
 
             // Initialize the mesh in Fourier space
-
             kx.reinit(nx);
             ky.reinit(ny);
             kz.reinit(nz);
             kmod2.reinit(nx,ny,nz);
             create_mesh_in_Fourier_space(this->x,this->y,this->z,kx,ky,kz);
-
             for (size_t i = 0; i < nx; ++i)
                 for (size_t j = 0; j < ny; ++j)
                     for (size_t k = 0; k < nz; ++k)
@@ -327,26 +305,22 @@ namespace UltraCold
                                        std::pow(kz[k],2);
 
             // Initialize hpsi and psitilde
-
             temp.reinit(nx,ny,nz);
             temp2.reinit(nx,ny,nz);
             temp_tilde.reinit(nx,ny,nz);
             temp2_tilde.reinit(nx,ny,nz);
 
             // Initialize space steps
-
             dx = this->x(1)-this->x(0);
             dy = this->y(1)-this->y(0);
             dy = this->z(1)-this->z(0);
             dv = dx*dy*dz;
 
             // Initialize boolean
-
             problem_is_3d = true;
             problem_is_real = true;
 
             // Eventually resize u and v
-
             if (this->eigenvectors_required)
             {
                 u.resize(this->number_of_modes);
@@ -359,13 +333,10 @@ namespace UltraCold
             }
 
             // Reinitialize psi0
-
             this->psi0.reinit(nx,ny,nz);
             for (int i = 0; i < nx*ny*nz; ++i) this->psi0[i] = psi0[i];
 
         }
-
-        // Constructors for complex problems
 
         /**
          * @brief Constructor for a TrappedBogolyubovSolver in one space dimension and complex stationary condensate
@@ -393,7 +364,6 @@ namespace UltraCold
         {
 
             // Get necessary copies of input data
-
             this->x    = x;
             this->Vext = Vext;
             this->scattering_length = scattering_length;
@@ -405,7 +375,6 @@ namespace UltraCold
             this->eigenvectors_required=eigenvectors_required;
 
             // Check the dimensions of the Vectors provided are consistent
-
             nx = this->x.extent(0);
             ny = 0;
             nz = 0;
@@ -426,34 +395,27 @@ namespace UltraCold
             }
 
             // Initialize the mesh in Fourier space
-
             kx.reinit(nx);
             kmod2.reinit(nx);
-
             create_mesh_in_Fourier_space(this->x,kx);
-
             for (size_t i = 0; i < nx; ++i)
                 kmod2(i) = std::pow(kx(i),2);
 
             // Initialize additional workspace vectors
-
             temp.reinit(nx);
             temp2.reinit(nx);
             temp_tilde.reinit(nx);
             temp2_tilde.reinit(nx);
 
             // Initialize space steps
-
             dx = this->x(1)-this->x(0);
             dv = dx;
 
             // Initialize boolean
-
             problem_is_1d = true;
             problem_is_complex = true;
 
             // Eventually resize u and v
-
             if (this->eigenvectors_required)
             {
                 u.resize(this->number_of_modes);
@@ -494,8 +456,8 @@ namespace UltraCold
                                                          int maximum_number_arnoldi_iterations,
                                                          bool eigenvectors_required)
         {
-            // Get necessary copies of input data
 
+            // Get necessary copies of input data
             this->x    = x;
             this->y    = y;
             this->Vext = Vext;
@@ -508,7 +470,6 @@ namespace UltraCold
             this->eigenvectors_required=eigenvectors_required;
 
             // Check the dimensions of the Vectors provided are consistent
-
             nx = this->x.extent(0);
             ny = this->y.extent(0);
             nz = 0;
@@ -530,37 +491,31 @@ namespace UltraCold
             }
 
             // Initialize the mesh in Fourier space
-
             kx.reinit(nx);
             ky.reinit(ny);
             kmod2.reinit(nx,ny);
             create_mesh_in_Fourier_space(this->x,this->y,kx,ky);
-
             for (size_t i = 0; i < nx; ++i)
                 for (size_t j = 0; j < ny; ++j)
                     kmod2(i,j) = std::pow(kx(i),2) +
                                  std::pow(ky(j),2);
 
             // Initialize additional workspace vectors
-
             temp.reinit(nx,ny);
             temp2.reinit(nx,ny);
             temp_tilde.reinit(nx,ny);
             temp2_tilde.reinit(nx,ny);
 
             // Initialize space steps
-
             dx = this->x(1)-this->x(0);
             dy = this->y(1)-this->y(0);
             dv = dx*dy;
 
             // Initialize boolean
-
             problem_is_2d = true;
             problem_is_complex = true;
 
             // Eventually resize u and v
-
             if (this->eigenvectors_required)
             {
                 u.resize(this->number_of_modes);
@@ -606,7 +561,6 @@ namespace UltraCold
         {
 
             // Get necessary copies of input data
-
             this->x    = x;
             this->y    = y;
             this->z    = z;
@@ -620,7 +574,6 @@ namespace UltraCold
             this->eigenvectors_required=eigenvectors_required;
 
             // Check the dimensions of the Vectors provided are consistent
-
             nx = this->x.extent(0);
             ny = this->y.extent(0);
             nz = this->z.extent(0);
@@ -643,7 +596,6 @@ namespace UltraCold
             }
 
             // Initialize the mesh in Fourier space
-
             kx.reinit(nx);
             ky.reinit(ny);
             kz.reinit(nz);
@@ -658,26 +610,22 @@ namespace UltraCold
                                        std::pow(kz[k],2);
 
             // Initialize hpsi and psitilde
-
             temp.reinit(nx,ny,nz);
             temp2.reinit(nx,ny,nz);
             temp_tilde.reinit(nx,ny,nz);
             temp2_tilde.reinit(nx,ny,nz);
 
             // Initialize space steps
-
             dx = this->x(1)-this->x(0);
             dy = this->y(1)-this->y(0);
             dy = this->z(1)-this->z(0);
             dv = dx*dy*dz;
 
             // Initialize boolean
-
             problem_is_3d = true;
             problem_is_complex = true;
 
             // Eventually resize u and v
-
             if (this->eigenvectors_required)
             {
                 u.resize(this->number_of_modes);
@@ -753,7 +701,6 @@ namespace UltraCold
         {
 
             // Initialize the variables
-
             a_int N;
             if(problem_is_1d)      N=nx;
             else if(problem_is_2d) N=nx*ny;
@@ -791,7 +738,6 @@ namespace UltraCold
                 MKLWrappers::DFtCalculator dft_calculator2(temp2,temp2_tilde);
 
                 // Declare vector data
-
                 std::vector<std::complex<double>> resid(ldv);
                 std::vector<std::complex<double>> V(ncv * ldv);
                 std::vector<std::complex<double>> workd(3 * ldv);
@@ -828,7 +774,6 @@ namespace UltraCold
                                   info);
 
                     // New u
-
 #pragma omp parallel for
                     for (int i = 0; i < N; ++i) temp[i] = workd[ipntr[0]-1+i];
                     dft_calculator1.compute_forward();
@@ -842,7 +787,6 @@ namespace UltraCold
                                 + 4.0*PI*scattering_length * std::pow(psi0[i],2) * workd[ipntr[0]-1+N+i]);
 
                     // New v
-
 #pragma omp parallel for
                     for (int i = 0; i < N; ++i) temp2[i] = workd[ipntr[0]-1+N+i];
                     dft_calculator2.compute_forward();
@@ -857,7 +801,6 @@ namespace UltraCold
 
 
                     // Write the results into workd and give control back to arpack
-
 #pragma omp parallel for
                     for (int i = 0; i < N; ++i)
                     {
@@ -868,7 +811,6 @@ namespace UltraCold
                 }
 
                 // Recover the eigenvalues and, optionally, the eigenvectors
-
                 std::vector<a_int> select(ncv);
                 for (int i = 0; i < ncv; i++) select[i] = 1;
                 arpack::neupd(rvec,
@@ -908,7 +850,6 @@ namespace UltraCold
             {
 
                 // Declare vector data
-
                 std::vector<double> resid(ldv);
                 std::vector<double> V(ncv * ldv);
                 std::vector<double> workd(3 * ldv);
@@ -953,7 +894,6 @@ namespace UltraCold
                                   info);
 
                     // Apply X
-
                     for (int i = 0; i < N; ++i) temp[i] = workd[ipntr[0]-1+i];
                     dft_calculator.compute_forward();
 #pragma omp parallel for
@@ -966,7 +906,6 @@ namespace UltraCold
                                      - chemical_potential ) * workd[ipntr[0]-1+i];
 
                     // Apply H
-
 #pragma omp parallel for
                     for (int i = 0; i < N; ++i) temp2[i] = temp[i];
                     dft_calculator.compute_forward();
@@ -980,13 +919,11 @@ namespace UltraCold
                                      - chemical_potential ) * temp2[i];
 
                     // Write the result into workd and give control back to arpack
-
                     for (int i = 0; i < N; ++i) workd[ipntr[1]-1+i] = temp[i].real();
 
                 }
 
                 // Recover the eigenvalues and, optionally, the eigenvectors
-
                 std::vector<a_int> select(ncv);
                 for (int i = 0; i < ncv; i++) select[i] = 1;
                 arpack::neupd(rvec,
@@ -1017,7 +954,6 @@ namespace UltraCold
 
                 // Extract the energies of the Bogolyubov modes from the eigenvalues of HX and sort them in
                 // ascending order (by real part)
-
                 std::vector<std::pair<std::complex<double>,int>> pairs_upv;
                 for (int i = 0; i < nev; ++i)
                 {
@@ -1045,11 +981,9 @@ namespace UltraCold
                     /////////////////////////////////////////////////////////////////////////////////////////////
 
                     // Reset the control variables
-
                     ido = 0;
 
                     // Restarts RCI
-
                     while (ido != 99)
                     {
 
@@ -1071,7 +1005,6 @@ namespace UltraCold
                                       info);
 
                         // Apply H
-
                         for (int i = 0; i < N; ++i) temp[i] = workd[ipntr[0]-1+i];
                         dft_calculator.compute_forward();
 #pragma omp parallel for
@@ -1085,7 +1018,6 @@ namespace UltraCold
                                          - chemical_potential ) * workd[ipntr[0]-1+i];
 
                         // Apply X
-
 #pragma omp parallel for
                         for (int i = 0; i < N; ++i) temp2[i] = temp[i];
                         dft_calculator.compute_forward();
@@ -1099,13 +1031,11 @@ namespace UltraCold
                                          - chemical_potential ) * temp2[i];
 
                         // Write the result into workd and give control back to arpack
-
                         for (int i = 0; i < N; ++i) workd[ipntr[1]-1+i] = temp[i].real();
 
                     }
 
                     // Recover the eigenvalues and eigenvectors
-
                     for (int i = 0; i < ncv; i++) select[i] = 1;
                     arpack::neupd(rvec,
                                   arpack::howmny::ritz_vectors,
@@ -1135,7 +1065,6 @@ namespace UltraCold
 
                     // Extract the energies of the Bogolyubov modes from the eigenvalues of HX and sort them in
                     // ascending order (by real part)
-
                     std::vector<std::pair<std::complex<double>,int>> pairs_umv;
                     for (int i = 0; i < nev; ++i)
                     {
@@ -1154,12 +1083,10 @@ namespace UltraCold
                     for (int i = 0; i < nev; ++i) eigenvalues_umv[i] = pairs_umv[i].first;
 
                     // Vectors are re-initialized, now we can recover u and v
-
                     for (int i = 0; i < nev; ++i)
                     {
 
                         // Find the index corresponding to a certain eigenvalue
-
                         int k_upv = pairs_upv[i].second;
                         int k_umv = pairs_umv[i].second;
 
@@ -1172,7 +1099,6 @@ namespace UltraCold
                         }
 
                         // Normalize
-
                         double bogolyubov_norm = 0.0;
                         for (int j = 0; j < N; ++j)
                             bogolyubov_norm += (std::norm(u[i](j)) - std::norm(v[i](j)));
