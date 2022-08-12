@@ -84,13 +84,17 @@ namespace UltraCold
                                             std::ostream& output_stream,
                                             int write_output_every);
 
+                void set_tw_initial_conditions(bool system_is_trapped);
+
             protected:
 
                 // Write the output
-                void write_gradient_descent_output(int it);
-                void write_operator_splitting_output(int it);
 
-            private:
+                virtual void write_gradient_descent_output(size_t iteration_number,
+                                                           std::ostream& output_stream);
+
+                virtual void write_operator_splitting_output(size_t        iteration_number,
+                                                             std::ostream& output_stream);
 
                 // Vector data members, needed for the calculations
                 // Vectors living in device memory have the _d postfix
