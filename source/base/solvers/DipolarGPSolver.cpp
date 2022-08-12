@@ -105,7 +105,6 @@ namespace UltraCold
             dv = dx*dy;
 
             // Get the norm of the initial wave function
-
             initial_norm = 0.0;
             for (size_t i = 0; i < this->psi.size(); ++i)
                 initial_norm += std::norm(this->psi[i]);
@@ -144,6 +143,8 @@ namespace UltraCold
 
         // Scattering length is divided by sqrt(2PI) here, since in the propagators it is multiplied by 4PI
         this->scattering_length *= 1./sqrt(2*PI);
+
+        system_is_2d = true;
 
     }
 
@@ -298,6 +299,8 @@ namespace UltraCold
                 F_epsilon_dd = csum.real();
                 gamma_epsilon_dd *= F_epsilon_dd;
             }
+
+            system_is_3d=true;
 
         }
 
@@ -687,6 +690,85 @@ namespace UltraCold
          */
 
         void DipolarGPSolver::write_operator_splitting_output(size_t, double, double, double, ostream&){};
+
+        /**
+         * @brief set initial conditions for a truncated wigner run
+         * */
+
+        void DipolarGPSolver::set_tw_initial_conditions(bool system_is_trapped)
+        {
+
+            // First, consider the case in which the system is not trapped
+
+            if(!system_is_trapped)
+            {
+
+                // Obtain a random seed from the clock
+                std::default_random_engine generator;
+                typedef std::chrono::high_resolution_clock clock;
+                clock::time_point                          beginning = clock::now();
+                clock::duration                            d         = clock::now() - beginning;
+                generator.seed(d.count());
+                std::uniform_real_distribution<double> distribution(-1,1);
+
+                // Generate the alphas
+                double u, v, s; // useful additional variables that we use to generate our random numbers
+                std::complex<double> alphak;
+
+                // Now refill the initial wave function with the single particle modes
+                if (system_is_2d)
+                {
+                    Vector<std::complex<double>> psitilde_tw(nx,ny);
+                    MKLWrappers::DFtCalculator dft_tw(psi,psitilde_tw);
+                    dft_tw.compute_forward();
+
+                    double density = initial_norm/(4.*x(nx-1)*y(ny-1));
+                    double eps_k;
+                    std::complex<double> Ek,uk,vk;
+
+                    for(int i = 0; i < nx; ++i)
+                        for(int j = 0; j < ny; ++j)
+                    {
+                        do
+                        {
+                            u = distribution(generator);
+                            v = distribution(generator);
+                            s = u * u + v * v;
+                        }
+                        while (s >= 1.0 || s == 0);
+
+                        s = sqrt((-2.0 * log(s)) / s);
+                        u = u * s;
+                        v = v * s;
+                        alphak.real(std::sqrt(0.25)*u);
+                        alphak.imag(std::sqrt(0.25)*v);
+
+                        eps_k = 0.5*std::sqrt(pow(kx[i],2)+pow(ky[j],2));
+                        Ek = std::sqrt(eps_k*(eps_k+2*density*(4*PI*scattering_length+Vtilde(i,j))));
+                        if(eps_k == 0)
+                        {
+                            uk = 1;
+                            vk = 0;
+                        }
+                        else
+                        {
+                            uk = 0.5*(sqrt(eps_k/Ek)+sqrt(Ek/eps_k));
+                            vk = 0.5*(sqrt(eps_k/Ek)-sqrt(Ek/eps_k));
+                        }
+
+                        psitilde_tw(i,j) += ( alphak*uk - conj(alphak)*vk);
+
+                    }
+
+                    dft_tw.compute_backward();
+
+                }
+
+                // We are now ready to perform a new run of the TWA.
+            }
+
+        }
     }
+
 }
 
