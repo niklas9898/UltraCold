@@ -105,7 +105,4 @@ macro(ULTRACOLD_SETUP_TARGET_WITH_CUDA target)
     target_link_libraries(${target} PUBLIC cudaSolvers)
     target_link_libraries(${target} PUBLIC utilities)
 
-
-
-
 endmacro()
