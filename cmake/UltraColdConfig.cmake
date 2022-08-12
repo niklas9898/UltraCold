@@ -91,8 +91,12 @@ macro(ULTRACOLD_SETUP_TARGET_WITH_CUDA target)
     #----------------------------------------------------------
 
     find_package(CUDA 11.0 REQUIRED)
-    target_link_libraries(${target} PUBLIC ${CUDA_LIBRARIES})
+    enable_language(CUDA)
+    set(CMAKE_CUDA_COMPILER nvcc)
     set_target_properties(${target} PROPERTIES CUDA_RESOLVE_DEVICE_SYMBOLS ON)
+    target_include_directories(${target} PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
+    target_link_libraries(${target} PUBLIC "${CUDA_LIBRARIES}" -lcufft)
+    add_compile_definitions(ULTRACOLD_WITH_CUDA)
 
     #-------------------------
     # Link to other libraries
@@ -100,6 +104,8 @@ macro(ULTRACOLD_SETUP_TARGET_WITH_CUDA target)
 
     target_link_libraries(${target} PUBLIC cudaSolvers)
     target_link_libraries(${target} PUBLIC utilities)
+
+
 
 
 endmacro()
