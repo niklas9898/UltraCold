@@ -825,7 +825,8 @@ namespace UltraCold
          *
          * When the temperature of a BEC is very close to the absolute zero, the simulation of the dynamics of the
          * system can be improved by properly taking into account the effects of quantum fluctuations on the initial
-         * conditions for the dynamics. The Truncated Wigner Approximation (TWA) allows to simulate such effects using so-called *c-field* techniques.
+         * conditions for the dynamics. The Truncated Wigner Approximation (TWA) allows to simulate such effects using
+         * so-called *c-field* techniques.
          *
          * A general introduction to the topic can be found in <href="https://arxiv.org/pdf/0809.1487.pdf">
          * this review </a>. Here we just sketch the main ideas that lie behind the implementation of this class,
@@ -861,14 +862,14 @@ namespace UltraCold
          *
          * */
 
-        void GPSolver::set_tw_initial_conditions(bool system_is_in_harmonic_trap,
+        void GPSolver::set_tw_initial_conditions(bool system_is_trapped,
                                                  bool first_call,
                                                  int number_of_modes)
         {
 
             // First, consider the case in which the system is in a harmonic trap
 
-            if(system_is_in_harmonic_trap)
+            if(system_is_trapped)
             {
 
                 // If a basis of eigenstates has already been calculated in a previous call, skip this part, otherwise
