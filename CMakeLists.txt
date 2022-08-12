@@ -48,15 +48,15 @@ endif()
 option(ULTRACOLD_WITH_CUDA "Build UltraCold with CUDA" OFF)
 
 if(ULTRACOLD_WITH_CUDA)
+	message(STATUS "Building UltraCold with cuda libraries")
 	set(CMAKE_CUDA_COMPILER nvcc)
-	add_compile_definitions(ULTRACOLD_WITH_CUDA)
 endif()
 
 #---------------------------------------------------
 # Set the name, language and version of the project
 #---------------------------------------------------
 
-project(UltraCold LANGUAGES C CXX Fortran CUDA VERSION 1.0)
+project(UltraCold LANGUAGES CUDA C CXX Fortran VERSION 1.0)
 
 #---------------------------------------
 # Set the default build type as Release
