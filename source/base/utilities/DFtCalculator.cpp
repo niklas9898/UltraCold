@@ -200,16 +200,13 @@ namespace UltraCold{
         {
 
             // Set the transform type
-
             transform_is_real_complex = true;
 
             // Get the pointers
-
             forward_domain_pointer  = (double*) forward_domain_vector.data();
             backward_domain_pointer = (std::complex<double>*) backward_domain_vector.data();
 
             // Get the extents of the Vectors 
-
             forward_domain_n1=forward_domain_vector.extent(0);
             forward_domain_n2=forward_domain_vector.extent(1);
             forward_domain_n3=forward_domain_vector.extent(2);
@@ -222,8 +219,7 @@ namespace UltraCold{
             // Notice that, for real-complex transform, the extent of the complex (backward_domain_vector) Vector 
             // along the last direction must be one-half (plus one) the extent of the real (forward_domain_vector) Vector 
             // along the same direction.
-
-            if((forward_domain_n2     == 0                   && 
+            if((forward_domain_n2     == 0                   &&
                 forward_domain_n3     == 0                   && 
                 forward_domain_n1/2+1 != backward_domain_n1 )   
               ||
@@ -260,7 +256,6 @@ namespace UltraCold{
                 // Initialize descriptor...
 
                 // ... in 1D
-
                 if(forward_domain_n2 == 0 && forward_domain_n3 == 0)
                 {
                     
@@ -286,7 +281,6 @@ namespace UltraCold{
                 {
 
                     // ... in 2D
-
                     transform_is_2d = true;
                     long N[2] = {forward_domain_n1,forward_domain_n2};
                     status = DftiCreateDescriptor(&dft_descriptor,DFTI_DOUBLE,DFTI_REAL,2,N);
@@ -308,7 +302,6 @@ namespace UltraCold{
                     }
 
                     // Set the strides for the forward and backward domains
-
                     strides_forward_domain_2d[0] = 0;
                     strides_forward_domain_2d[1] = forward_domain_n2;
                     strides_forward_domain_2d[2] = 1;
@@ -320,7 +313,6 @@ namespace UltraCold{
                 else
                 {
                     // ... in 3D
-
                     transform_is_3d = true;
 
                     long N[3] = {forward_domain_n1,forward_domain_n2,forward_domain_n3};
@@ -344,7 +336,6 @@ namespace UltraCold{
                     }
                      
                     // Set the strides
-
                     strides_forward_domain_3d[0] = 0;
                     strides_forward_domain_3d[1] = forward_domain_n2*forward_domain_n3;
                     strides_forward_domain_3d[2] = forward_domain_n3;
@@ -357,19 +348,15 @@ namespace UltraCold{
             }
 
             // Specify that the transform is out-of-place.
-
             status = DftiSetValue(dft_descriptor,DFTI_PLACEMENT,DFTI_NOT_INPLACE);
 
             // Specify the memory layout for real-complex transform
-
             status = DftiSetValue(dft_descriptor,DFTI_CONJUGATE_EVEN_STORAGE,DFTI_COMPLEX_COMPLEX);
 
             // Set the scale for the backward domain. The backward transform will thus be normalized
-
             status = DftiSetValue(dft_descriptor,DFTI_BACKWARD_SCALE,1./forward_domain_vector.size());
 
             // Commit descriptor. The object is now ready to be used in calculations
-
             status = DftiCommitDescriptor(dft_descriptor);
 
             if(status != 0)
@@ -399,6 +386,332 @@ namespace UltraCold{
         DFtCalculator::~DFtCalculator()
         {
             DftiFreeDescriptor(&dft_descriptor);
+        }
+
+        /**
+         * @brief Reinit a complex-to-complex transform
+         * */
+
+        void DFtCalculator::reinit(Vector<std::complex<double>> &forward_domain_vector,
+                                   Vector<std::complex<double>> &backward_domain_vector)
+        {
+
+            // Initialize the pointers
+            forward_domain_pointer  = (std::complex<double>*) forward_domain_vector.data();
+            backward_domain_pointer = (std::complex<double>*) backward_domain_vector.data();
+
+            // Get the extents of the Vectors
+            forward_domain_n1=forward_domain_vector.extent(0);
+            forward_domain_n2=forward_domain_vector.extent(1);
+            forward_domain_n3=forward_domain_vector.extent(2);
+
+            backward_domain_n1=backward_domain_vector.extent(0);
+            backward_domain_n2=backward_domain_vector.extent(1);
+            backward_domain_n3=backward_domain_vector.extent(2);
+
+            // Check that the dimensions of the Vectors are equal, and rise an error otherwise
+            if(forward_domain_n1 != backward_domain_n1 ||
+               forward_domain_n2 != backward_domain_n2 ||
+               forward_domain_n3 != backward_domain_n3)
+            {
+                std::cout
+                        << "\n\n"
+                        << "*********************************************************************************************\n"
+                        << "Error found in re-initializer of a DFtCalculator for a complex-complex transform.\n"
+                        << "The forward_domain_vector and backward_domain_vector Vectors do not have the same dimensions.\n"
+                        << "Terminating program now...\n"
+                        << "*********************************************************************************************\n"
+                        << "\n\n"
+                        <<
+                        std::endl;
+                exit(1);
+            }
+            else
+            {
+
+                // Initialize descriptor...
+
+                // ... in 1D
+                if(forward_domain_n2 == 0 && forward_domain_n3 == 0)
+                {
+                    status = DftiCreateDescriptor(&dft_descriptor,DFTI_DOUBLE,DFTI_COMPLEX,1,forward_domain_n1);
+                    if(status != 0)
+                    {
+                        char* error_message = DftiErrorMessage(status);
+                        std::cout
+                                << "\n\n"
+                                << "**********************************************************************************\n"
+                                << "Error found in re-initializer of a DFtCalculator for a complex-complex 1D transform. \n"
+                                << "Failed to create descriptor. MKL is raising the following error message: \n"
+                                << error_message
+                                << "\nTerminating the program now...\n"
+                                << "**********************************************************************************\n"
+                                << "\n\n"
+                                <<
+                                std::endl;
+                        exit(1);
+                    }
+                }
+                else if(forward_domain_n3 == 0)
+                {
+
+                    // ... in 2D
+                    long N[2] = {forward_domain_n1,forward_domain_n2};
+                    status = DftiCreateDescriptor(&dft_descriptor,DFTI_DOUBLE,DFTI_COMPLEX,2,N);
+                    if(status != 0)
+                    {
+                        char* error_message = DftiErrorMessage(status);
+                        std::cout
+                                << "\n\n"
+                                << "**********************************************************************************\n"
+                                << "Error found in re-initializer of a DFtCalculator for a complex-complex 2D transform. \n"
+                                << "Failed to create descriptor. MKL is raising the following error message: \n"
+                                << error_message
+                                << "\nTerminating the program now...\n"
+                                << "**********************************************************************************\n"
+                                << "\n\n"
+                                <<
+                                std::endl;
+                        exit(1);
+                    }
+                }
+                else
+                {
+                    // ... in 3D
+                    long N[3] = {forward_domain_n1,forward_domain_n2,forward_domain_n3};
+                    status = DftiCreateDescriptor(&dft_descriptor,DFTI_DOUBLE,DFTI_COMPLEX,3,N);
+                    if(status != 0)
+                    {
+                        char* error_message = DftiErrorMessage(status);
+                        std::cout
+                                << "\n\n"
+                                << "**********************************************************************************\n"
+                                << "Error found in re-initializer of a DFtCalculator for a complex-complex 3D transform. \n"
+                                << "Failed to create descriptor. MKL is raising the following error message: \n"
+                                << error_message
+                                << "\nTerminating the program now...\n"
+                                << "**********************************************************************************\n"
+                                << "\n\n"
+                                <<
+                                std::endl;
+                        exit(1);
+                    }
+                }
+            }
+
+            // Specify that the transform is out-of-place.
+            status = DftiSetValue(dft_descriptor,DFTI_PLACEMENT,DFTI_NOT_INPLACE);
+
+            // Set the scale for the backward domain. The backward transform will thus be normalized
+            status = DftiSetValue(dft_descriptor,DFTI_BACKWARD_SCALE,1./forward_domain_vector.size());
+
+            // Commit descriptor. The object is now ready to be used in calculations
+            status = DftiCommitDescriptor(dft_descriptor);
+
+            if(status != 0)
+            {
+                char* error_message = DftiErrorMessage(status);
+                std::cout
+                        << "\n\n"
+                        << "******************************************************************************\n"
+                        << "Error found in re-initializer of a DFtCalculator for a complex-complex transform.\n"
+                        << "Failed to commit the descriptor. MKL is raising the following error message: \n"
+                        << error_message
+                        << "\nTerminating the program now...\n"
+                        << "******************************************************************************\n"
+                        << "\n\n"
+                        <<
+                        std::endl;
+                exit(1);
+            }
+
+        }
+
+        /**
+         * @brief Re-initialize a real-to-complex transform
+         * */
+
+        void DFtCalculator::reinit(Vector<double> &forward_domain_vector,
+                                   Vector<std::complex<double>> &backward_domain_vector)
+        {
+
+            // Set the transform type
+            transform_is_real_complex = true;
+
+            // Get the pointers
+            forward_domain_pointer  = (double*) forward_domain_vector.data();
+            backward_domain_pointer = (std::complex<double>*) backward_domain_vector.data();
+
+            // Get the extents of the Vectors
+            forward_domain_n1=forward_domain_vector.extent(0);
+            forward_domain_n2=forward_domain_vector.extent(1);
+            forward_domain_n3=forward_domain_vector.extent(2);
+
+            backward_domain_n1=backward_domain_vector.extent(0);
+            backward_domain_n2=backward_domain_vector.extent(1);
+            backward_domain_n3=backward_domain_vector.extent(2);
+
+            // Check that the dimensions of the Vectors are consistent, and rise an error otherwise.
+            // Notice that, for real-complex transform, the extent of the complex (backward_domain_vector) Vector
+            // along the last direction must be one-half (plus one) the extent of the real (forward_domain_vector) Vector
+            // along the same direction.
+            if((forward_domain_n2     == 0                   &&
+                forward_domain_n3     == 0                   &&
+                forward_domain_n1/2+1 != backward_domain_n1 )
+               ||
+               (forward_domain_n3     == 0                   &&
+                forward_domain_n2     != 0                   &&
+                forward_domain_n1     != backward_domain_n1)
+               ||
+               (forward_domain_n3     == 0                   &&
+                forward_domain_n2     != 0                   &&
+                forward_domain_n2/2+1 != backward_domain_n2)
+               ||
+               (forward_domain_n3     != 0                   &&
+                forward_domain_n2     != backward_domain_n2)
+               ||
+               (forward_domain_n3     != 0                   &&
+                forward_domain_n3/2+1 != backward_domain_n3)
+                    )
+            {
+                std::cout
+                        << "\n\n"
+                        << "***********************************************************************************************\n"
+                        << "Error found in re-initializer of a DFtCalculator for a real-complex transform.\n"
+                        << "The forward_domain_vector and backward_domain_vector Vectors do not have consistent dimensions.\n"
+                        << "Terminating program now...\n"
+                        << "***********************************************************************************************\n"
+                        << "\n\n"
+                        <<
+                        std::endl;
+                exit(1);
+            }
+            else
+            {
+
+                // Initialize descriptor...
+
+                // ... in 1D
+                if(forward_domain_n2 == 0 && forward_domain_n3 == 0)
+                {
+
+                    status = DftiCreateDescriptor(&dft_descriptor,DFTI_DOUBLE,DFTI_REAL,1,forward_domain_n1);
+                    if(status != 0)
+                    {
+                        char* error_message = DftiErrorMessage(status);
+                        std::cout
+                                << "\n\n"
+                                << "******************************************************************************\n"
+                                << "Error found in re-initializer of a DFtCalculator for a real-complex 1D transform.\n"
+                                << "Failed to create descriptor. MKL is raising the following error message: \n"
+                                << error_message
+                                << "\nTerminating the program now...\n"
+                                << "*******************************************************************************\n"
+                                << "\n\n"
+                                <<
+                                std::endl;
+                        exit(1);
+                    }
+                }
+                else if(forward_domain_n3 == 0)
+                {
+
+                    // ... in 2D
+                    transform_is_2d = true;
+                    long N[2] = {forward_domain_n1,forward_domain_n2};
+                    status = DftiCreateDescriptor(&dft_descriptor,DFTI_DOUBLE,DFTI_REAL,2,N);
+                    if(status != 0)
+                    {
+                        char* error_message = DftiErrorMessage(status);
+                        std::cout
+                                << "\n\n"
+                                << "*************************************************************************************\n"
+                                << "Error found in re-initializer of a DFtCalculator for a real-complex 2D transform.\n"
+                                << "Failed to create descriptor. MKL is raising the following error message: \n"
+                                << error_message
+                                << "\nTerminating the program now...\n"
+                                << "*************************************************************************************\n"
+                                << "\n\n"
+                                <<
+                                std::endl;
+                        exit(1);
+                    }
+
+                    // Set the strides for the forward and backward domains
+                    strides_forward_domain_2d[0] = 0;
+                    strides_forward_domain_2d[1] = forward_domain_n2;
+                    strides_forward_domain_2d[2] = 1;
+                    strides_backward_domain_2d[0] = 0;
+                    strides_backward_domain_2d[1] = forward_domain_n2/2+1;
+                    strides_backward_domain_2d[2] = 1;
+
+                }
+                else
+                {
+                    // ... in 3D
+                    transform_is_3d = true;
+
+                    long N[3] = {forward_domain_n1,forward_domain_n2,forward_domain_n3};
+                    status = DftiCreateDescriptor(&dft_descriptor,DFTI_DOUBLE,DFTI_REAL,3,N);
+
+                    if(status != 0)
+                    {
+                        char* error_message = DftiErrorMessage(status);
+                        std::cout
+                                << "\n\n"
+                                << "*************************************************************************************\n"
+                                << "Error found in re-initializer of a DFtCalculator for a real-complex 3D transform.\n"
+                                << "Failed to create descriptor. MKL is raising the following error message: \n"
+                                << error_message
+                                << "\nTerminating the program now...\n"
+                                << "*************************************************************************************\n"
+                                << "\n\n"
+                                <<
+                                std::endl;
+                        exit(1);
+                    }
+
+                    // Set the strides
+                    strides_forward_domain_3d[0] = 0;
+                    strides_forward_domain_3d[1] = forward_domain_n2*forward_domain_n3;
+                    strides_forward_domain_3d[2] = forward_domain_n3;
+                    strides_forward_domain_3d[3] = 1;
+                    strides_backward_domain_3d[0] = 0;
+                    strides_backward_domain_3d[1] = forward_domain_n2*(forward_domain_n3/2+1);
+                    strides_backward_domain_3d[2] = forward_domain_n3/2+1;
+                    strides_backward_domain_3d[3] = 1;
+                }
+            }
+
+            // Specify that the transform is out-of-place.
+            status = DftiSetValue(dft_descriptor,DFTI_PLACEMENT,DFTI_NOT_INPLACE);
+
+            // Specify the memory layout for real-complex transform
+            status = DftiSetValue(dft_descriptor,DFTI_CONJUGATE_EVEN_STORAGE,DFTI_COMPLEX_COMPLEX);
+
+            // Set the scale for the backward domain. The backward transform will thus be normalized
+            status = DftiSetValue(dft_descriptor,DFTI_BACKWARD_SCALE,1./forward_domain_vector.size());
+
+            // Commit descriptor. The object is now ready to be used in calculations
+            status = DftiCommitDescriptor(dft_descriptor);
+
+            if(status != 0)
+            {
+                char* error_message = DftiErrorMessage(status);
+                std::cout
+                        << "\n\n"
+                        << "*************************************************************************************\n"
+                        << "Error found in re-initializer of a DFtCalculator for a real-complex 3D transform.\n"
+                        << "Failed to commit the descriptor. MKL is raising the following error message: \n"
+                        << error_message
+                        << "\nTerminating the program now...\n"
+                        << "*************************************************************************************\n"
+                        << "\n\n"
+                        <<
+                        std::endl;
+                exit(1);
+            }
+
         }
 
         /**
@@ -437,7 +750,7 @@ namespace UltraCold{
 
 
         /**
-         * @brief Calculate a backward transform. The transform is alreay normalized.
+         * @brief Calculate a backward transform. The transform is already normalized.
          * 
          */
 
