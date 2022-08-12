@@ -503,14 +503,15 @@ namespace UltraCold
                 // of external arguments. Unfortunately, it is currently not possible to declare virtual member
                 // functions as templates (so cannot merge a different number of input parameters in the
                 // parameter pack of a variadic template)
-
                 virtual void run_operator_splitting(int    number_of_time_steps,
                                                     double time_step,
                                                     std::ostream& output_stream);
-
                 virtual void run_operator_splitting(int,double,double,std::ostream &);
                 virtual void run_operator_splitting(int,double,double,double,std::ostream &);
                 virtual void run_operator_splitting(int,double,double,double,double,std::ostream &);
+
+                // Set initial conditions for a run in the context of the Truncated Wigner approximation
+                void set_tw_initial_conditions(bool system_is_trapped);
 
             protected:
 
@@ -573,7 +574,8 @@ namespace UltraCold
                 double time_step;
                 std::complex<double> ci={0.0,1.0};
                 int last_iteration_number;
-
+                bool system_is_2d=true;
+                bool system_is_3d=true;
 
         };
 
