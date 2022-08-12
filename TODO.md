@@ -5,7 +5,6 @@ with what we want to add, when and so on so forth.
 
 - in TrappedBogolyubovSolver, compute eigenvectors for complex wave functions.
 - in TrappedDipolarBogolyubovSolver, compute eigenvalues and eigenvectors for complex wave functions.
-- General mpi parallelization
-- cuda as much as possible
+- Documentation plus working examples for cuda
 
 SAY that you need to set environment variables 
