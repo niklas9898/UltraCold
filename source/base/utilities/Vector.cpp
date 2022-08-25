@@ -142,7 +142,7 @@ namespace UltraCold{
     */
 
     template <typename T>
-    Vector<T>::Vector(Vector<T>&& w)
+    Vector<T>::Vector(Vector<T>&& w) noexcept
     {
         elements = w.elements;
         number_of_dimensions = w.number_of_dimensions;
@@ -166,7 +166,7 @@ namespace UltraCold{
     */
 
     template <typename T>
-    Vector<T>& Vector<T>::operator=(Vector<T>&& w)
+    Vector<T>& Vector<T>::operator=(Vector<T>&& w) noexcept
     {
         elements = w.elements;
         number_of_dimensions = w.number_of_dimensions;

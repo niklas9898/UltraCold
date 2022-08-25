@@ -46,46 +46,45 @@ namespace UltraCold
     class Vector
     {
 
-        public:
+    public:
 
-            // Constructors and movements
+        // Constructors and movements
+        Vector() = default;                      // Default constructor
+        Vector(int);                             // One-dimensional Vector
+        Vector(int,int);                         // Two-dimensional Vector
+        Vector(int,int,int);                     // Three-dimensional Vector
+        Vector(const Vector<T>&);                // Copy constructor
+        Vector& operator=(const Vector<T>&);     // Copy assignment
+        Vector(Vector<T>&&) noexcept;            // Move constructor
+        Vector& operator=(Vector<T>&&) noexcept; // Move assignment
+        ~Vector();                               // Destructor
 
-            Vector() = default;                  // Default constructor
-            Vector(int);                         // One-dimensional Vector
-            Vector(int,int);                     // Two-dimensional Vector
-            Vector(int,int,int);                 // Three-dimensional Vector
-            Vector(const Vector<T>&);            // Copy constructor
-            Vector& operator=(const Vector<T>&); // Copy assignment
-            Vector(Vector<T>&&);                 // Move constructor
-            Vector& operator=(Vector<T>&&);      // Move assignment
-            ~Vector();                           // Destructor
+        // Re-initializers
 
-            // Re-initializers
+        void reinit(int);            // Reinitialize a one-dimensional Vector
+        void reinit(int,int);        // Reinitialize a two-dimensional Vector
+        void reinit(int,int,int);    // Reinitialize a three-dimensional Vector
 
-            void reinit(int);            // Reinitialize a one-dimensional Vector
-            void reinit(int,int);        // Reinitialize a two-dimensional Vector
-            void reinit(int,int,int);    // Reinitialize a three-dimensional Vector
+        // Basic member functions
 
-            // Basic member functions
-
-            int size();                  // Get the total number of elements
-            int order();                 // Get the number of dimensions
-            int extent(int);             // Get the extent along a certain direction
-            T* data();                   // Get the pointer to the first element of the array
-            T& operator() (int);         // Fortran-style access, one-dimensional Vector
-            T& operator() (int,int);     // Fortran-style access, two-dimensional Vector
-            T& operator() (int,int,int); // Fortran-style access, three-dimensional Vector
-            T& operator[] (int);         // C-style access
+        int size();                  // Get the total number of elements
+        int order();                 // Get the number of dimensions
+        int extent(int);             // Get the extent along a certain direction
+        T* data();                   // Get the pointer to the first element of the array
+        T& operator() (int);         // Fortran-style access, one-dimensional Vector
+        T& operator() (int,int);     // Fortran-style access, two-dimensional Vector
+        T& operator() (int,int,int); // Fortran-style access, three-dimensional Vector
+        T& operator[] (int);         // C-style access
 
 
-        private:
+    private:
 
-            T* elements = nullptr;      // Pointer to the first element of the Vector
-            int number_of_dimensions;   // Order of the Vector, i.e. the number of its dimensions
-            int number_of_elements;     // Total number of elements
-            int extent_0;               // Number of elements along direction 0
-            int extent_1;               // Number of elements along direction 1
-            int extent_2;               // Number of elements along direction 2
+        T* elements = nullptr;      // Pointer to the first element of the Vector
+        int number_of_dimensions;   // Order of the Vector, i.e. the number of its dimensions
+        int number_of_elements;     // Total number of elements
+        int extent_0;               // Number of elements along direction 0
+        int extent_1;               // Number of elements along direction 1
+        int extent_2;               // Number of elements along direction 2
 
     };
 
