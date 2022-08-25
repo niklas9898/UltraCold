@@ -67,8 +67,8 @@ namespace UltraCold
                 ~DipolarGPSolver();
 
                 // Re-initializers
-                void reinit(Vector<std::complex<double>>& psi, Vector<double>& Vext);
-                void reinit(Vector<std::complex<double>>& psi, Vector<double>& Vext,double scattering_length);
+                void reinit(Vector<double>& Vext,Vector<std::complex<double>>& psi);
+                void reinit(Vector<double>& Vext,Vector<std::complex<double>>& psi,double scattering_length);
 
                 // Calculate a ground-state solution
                 std::tuple<Vector<std::complex<double>>,double> run_gradient_descent(int    max_num_iter,

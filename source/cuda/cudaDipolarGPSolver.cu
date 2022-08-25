@@ -737,14 +737,14 @@ namespace UltraCold
          *
          * */
 
-        void DipolarGPSolver::reinit(Vector<std::complex<double>> &psi, Vector<double> &Vext)
+        void DipolarGPSolver::reinit(Vector<double> &Vext,Vector<std::complex<double>> &psi)
         {
             cudaMemcpy(wave_function_d,psi.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
             cudaMemcpy(external_potential_d,Vext.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
 
         }
 
-        void DipolarGPSolver::reinit(Vector<std::complex<double>> &psi, Vector<double> &Vext,double scattering_length)
+        void DipolarGPSolver::reinit(Vector<double> &Vext,Vector<std::complex<double>> &psi,double scattering_length)
         {
             cudaMemcpy(wave_function_d,psi.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
             cudaMemcpy(external_potential_d,Vext.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
