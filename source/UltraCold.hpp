@@ -27,6 +27,7 @@
 #include "DFtCalculator.hpp"
 #include "GPSolvers.hpp"
 #include "BogolyubovSolvers.hpp"
+#include "Colors.hpp"
 
 #ifdef ULTRACOLD_WITH_CUDA
 #include "cudaGPSolver.cuh"
