@@ -161,12 +161,12 @@ time step                 = 0.001 # Time step for real-time dynamics, in millise
 <div class="line"> </div>
 <div class="line">    <span class="keyword">using </span>DipolarGPSolver::DipolarGPSolver;</div>
 <div class="line"> </div>
-<div class="line">    <span class="keywordtype">void</span> write_operator_splitting_output(<span class="keywordtype">size_t</span> iteration_number,</div>
+<div class="line">    <span class="keywordtype">void</span> <a class="code hl_function" href="class_dipoles2d.html#a7a3362455056efb1e51dc2caad00fdaa">write_operator_splitting_output</a>(<span class="keywordtype">size_t</span> iteration_number,</div>
 <div class="line">                                         std::ostream&amp; output_stream) <span class="keyword">override</span>;</div>
 <div class="line"> </div>
 <div class="line">};</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> Dipoles2d::write_operator_splitting_output(<span class="keywordtype">size_t</span> iteration_number,</div>
+<div class="line"><span class="keywordtype">void</span> <a class="code hl_function" href="class_dipoles2d.html#a7a3362455056efb1e51dc2caad00fdaa">Dipoles2d::write_operator_splitting_output</a>(<span class="keywordtype">size_t</span> iteration_number,</div>
 <div class="line">                                                std::ostream &amp;output_stream)</div>
 <div class="line">{</div>
 <div class="line"> </div>
@@ -180,6 +180,7 @@ time step                 = 0.001 # Time step for real-time dynamics, in millise
 <div class="line">    }</div>
 <div class="line">}</div>
 <div class="ttc" id="aclass_dipoles2d_html"><div class="ttname"><a href="class_dipoles2d.html">Dipoles2d</a></div><div class="ttdef"><b>Definition:</b> example-5.cpp:30</div></div>
+<div class="ttc" id="aclass_dipoles2d_html_a7a3362455056efb1e51dc2caad00fdaa"><div class="ttname"><a href="class_dipoles2d.html#a7a3362455056efb1e51dc2caad00fdaa">Dipoles2d::write_operator_splitting_output</a></div><div class="ttdeci">void write_operator_splitting_output(size_t iteration_number, std::ostream &amp;output_stream) override</div><div class="ttdoc">Operator splitting output.</div><div class="ttdef"><b>Definition:</b> example-5.cpp:40</div></div>
 </div><!-- fragment --><p >We then read the input file using the class <code> Tools::InputParser </code>, set harmonic units (imagining that the system is in a quasi-two-dimensional setup due to a strong harmonic confinement along the z-axis) and create a mesh.</p>
 <div class="fragment"><div class="line"><span class="keywordtype">int</span> main() {</div>
 <div class="line"> </div>
@@ -344,18 +345,18 @@ The plain program</h2>
 <div class="line"> </div>
 <div class="line"><span class="keyword">using namespace </span><a class="code hl_namespace" href="namespace_ultra_cold.html">UltraCold</a>;</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">class </span><a class="code hl_class" href="class_dipoles2d.html">Dipoles2d</a> : <span class="keyword">public</span> cudaSolvers::DipolarGPSolver</div>
+<div class="line"><span class="keyword">class </span><a class="code hl_class" href="class_dipoles2d.html">Dipoles2d</a> : <span class="keyword">public</span> <a class="code hl_class" href="class_ultra_cold_1_1cuda_solvers_1_1_dipolar_g_p_solver.html">cudaSolvers::DipolarGPSolver</a></div>
 <div class="line">{</div>
 <div class="line"><span class="keyword">public</span>:</div>
 <div class="line"> </div>
 <div class="line">    <span class="keyword">using </span>DipolarGPSolver::DipolarGPSolver;</div>
 <div class="line"> </div>
-<div class="line">    <span class="keywordtype">void</span> write_operator_splitting_output(<span class="keywordtype">size_t</span> iteration_number,</div>
+<div class="line">    <span class="keywordtype">void</span> <a class="code hl_function" href="class_dipoles2d.html#a7a3362455056efb1e51dc2caad00fdaa">write_operator_splitting_output</a>(<span class="keywordtype">size_t</span> iteration_number,</div>
 <div class="line">                                         std::ostream&amp; output_stream) <span class="keyword">override</span>;</div>
 <div class="line"> </div>
 <div class="line">};</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> Dipoles2d::write_operator_splitting_output(<span class="keywordtype">size_t</span> iteration_number,</div>
+<div class="line"><span class="keywordtype">void</span> <a class="code hl_function" href="class_dipoles2d.html#a7a3362455056efb1e51dc2caad00fdaa">Dipoles2d::write_operator_splitting_output</a>(<span class="keywordtype">size_t</span> iteration_number,</div>
 <div class="line">                                                std::ostream &amp;output_stream)</div>
 <div class="line">{</div>
 <div class="line"> </div>
@@ -509,6 +510,7 @@ The plain program</h2>
 <div class="ttc" id="aclass_ultra_cold_1_1_real_space_output_1_1_data_out_html_af8e7d71fa2f88a7405bbd24843125747"><div class="ttname"><a href="class_ultra_cold_1_1_real_space_output_1_1_data_out.html#af8e7d71fa2f88a7405bbd24843125747">UltraCold::RealSpaceOutput::DataOut::write_vtk</a></div><div class="ttdeci">void write_vtk(Vector&lt; double &gt; &amp;x_axis, Vector&lt; double &gt; &amp;y_axis, Vector&lt; double &gt; &amp;real_output_vector, const char *vector_name)</div><div class="ttdoc">Write an output data file in .vtk format, for real 2D output.</div><div class="ttdef"><b>Definition:</b> DataOut.cpp:1498</div></div>
 <div class="ttc" id="aclass_ultra_cold_1_1_tools_1_1_input_parser_html"><div class="ttname"><a href="class_ultra_cold_1_1_tools_1_1_input_parser.html">UltraCold::Tools::InputParser</a></div><div class="ttdoc">Class to read input parameters from files.</div><div class="ttdef"><b>Definition:</b> InputParser.hpp:93</div></div>
 <div class="ttc" id="aclass_ultra_cold_1_1_vector_html"><div class="ttname"><a href="class_ultra_cold_1_1_vector.html">UltraCold::Vector&lt; double &gt;</a></div></div>
+<div class="ttc" id="aclass_ultra_cold_1_1cuda_solvers_1_1_dipolar_g_p_solver_html"><div class="ttname"><a href="class_ultra_cold_1_1cuda_solvers_1_1_dipolar_g_p_solver.html">UltraCold::cudaSolvers::DipolarGPSolver</a></div><div class="ttdoc">GPU-accelerated solver for a dipolar Gross-Pitaevskii equation.</div><div class="ttdef"><b>Definition:</b> cudaDipolarGPSolver.cuh:41</div></div>
 <div class="ttc" id="anamespace_ultra_cold_html"><div class="ttname"><a href="namespace_ultra_cold.html">UltraCold</a></div><div class="ttdoc">All the classes and functions necessary to work with UltraCold.</div><div class="ttdef"><b>Definition:</b> BogolyubovSolver.cpp:25</div></div>
 </div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->

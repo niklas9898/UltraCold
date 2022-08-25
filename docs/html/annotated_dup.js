@@ -5,6 +5,10 @@ var annotated_dup =
         [ "TrappedBogolyubovSolver", "class_ultra_cold_1_1_bogolyubov_solvers_1_1_trapped_bogolyubov_solver.html", "class_ultra_cold_1_1_bogolyubov_solvers_1_1_trapped_bogolyubov_solver" ],
         [ "TrappedDipolarBogolyubovSolver", "class_ultra_cold_1_1_bogolyubov_solvers_1_1_trapped_dipolar_bogolyubov_solver.html", "class_ultra_cold_1_1_bogolyubov_solvers_1_1_trapped_dipolar_bogolyubov_solver" ]
       ] ],
+      [ "cudaSolvers", "namespace_ultra_cold_1_1cuda_solvers.html", [
+        [ "DipolarGPSolver", "class_ultra_cold_1_1cuda_solvers_1_1_dipolar_g_p_solver.html", "class_ultra_cold_1_1cuda_solvers_1_1_dipolar_g_p_solver" ],
+        [ "GPSolver", "class_ultra_cold_1_1cuda_solvers_1_1_g_p_solver.html", "class_ultra_cold_1_1cuda_solvers_1_1_g_p_solver" ]
+      ] ],
       [ "FourierSpaceOutput", "namespace_ultra_cold_1_1_fourier_space_output.html", [
         [ "DataOut", "class_ultra_cold_1_1_fourier_space_output_1_1_data_out.html", "class_ultra_cold_1_1_fourier_space_output_1_1_data_out" ]
       ] ],
@@ -26,6 +30,6 @@ var annotated_dup =
       ] ],
       [ "Vector", "class_ultra_cold_1_1_vector.html", "class_ultra_cold_1_1_vector" ]
     ] ],
-    [ "Dipoles2d", "class_dipoles2d.html", null ],
+    [ "Dipoles2d", "class_dipoles2d.html", "class_dipoles2d" ],
     [ "myGPSolver", "classmy_g_p_solver.html", "classmy_g_p_solver" ]
 ];

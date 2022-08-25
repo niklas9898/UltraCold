@@ -25,12 +25,6 @@
 namespace UltraCold
 {
 
-    /**
-     * @brief This is a simple solver for the Dipolar GP equation using CUDA
-     * @author Santo Maria Roccuzzo (santom.roccuzzo@gmail.com)
-     *
-     * */
-
     namespace cudaSolvers
     {
 

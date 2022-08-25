@@ -1,6 +1,7 @@
 var namespace_ultra_cold =
 [
     [ "BogolyubovSolvers", "namespace_ultra_cold_1_1_bogolyubov_solvers.html", "namespace_ultra_cold_1_1_bogolyubov_solvers" ],
+    [ "cudaSolvers", "namespace_ultra_cold_1_1cuda_solvers.html", "namespace_ultra_cold_1_1cuda_solvers" ],
     [ "FourierSpaceOutput", "namespace_ultra_cold_1_1_fourier_space_output.html", "namespace_ultra_cold_1_1_fourier_space_output" ],
     [ "GPSolvers", "namespace_ultra_cold_1_1_g_p_solvers.html", "namespace_ultra_cold_1_1_g_p_solvers" ],
     [ "RealSpaceOutput", "namespace_ultra_cold_1_1_real_space_output.html", "namespace_ultra_cold_1_1_real_space_output" ],
