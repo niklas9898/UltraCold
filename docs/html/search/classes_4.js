@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mygpsolver_0',['myGPSolver',['../classmy_g_p_solver.html',1,'']]]
+  ['inputparser_0',['InputParser',['../class_ultra_cold_1_1_tools_1_1_input_parser.html',1,'UltraCold::Tools']]]
 ];

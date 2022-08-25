@@ -28,7 +28,10 @@ namespace UltraCold
         // Pure device kernels
         ///////////////////////////////////////////////////////
 
-        // A useful complex exponential function
+        /**
+         * @brief A useful complex exponential function
+         * */
+
         __device__ cuDoubleComplex complex_exponential(cuDoubleComplex input)
         {
             cuDoubleComplex res;

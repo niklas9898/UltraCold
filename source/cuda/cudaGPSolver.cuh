@@ -26,8 +26,13 @@ namespace UltraCold
 {
 
     /**
-     * @brief This is a simple solver for the GP equation using CUDA
+     * @brief Namespace containing GPU-accelerated solvers for various flavors of Gross-Pitaevskii equations
      * @author Santo Maria Roccuzzo (santom.roccuzzo@gmail.com)
+     *
+     * This namespace contains several GPU-accelerated solver classes for various flavors of Gross-Pitaevskii equations.
+     * Such solvers are implemented in CUDA, and all the computationally intensive tasks are delegated to a GPU.
+     * In order to use such classes, it is necessary of course to have an NVIDIA GPU available, as well as CUDA
+     * installed.
      *
      * */
 
@@ -35,9 +40,11 @@ namespace UltraCold
     {
 
         /**
-         * @brief The actual class
+         * @brief GPU-accelerated solver for a simple Gross-Pitaevskii equation
          *
-         * Specify that the total number of points should be a multiple of 32 for optimal performance!
+         * The functionality of this solver class is practically identical to the one using only CPUs.
+         *
+         * \note For optimal performance, the total number of points should be a multiple of 32.
          *
          * */
 
@@ -76,7 +83,7 @@ namespace UltraCold
                                                                                      int write_output_every);
 
                 // Solve the GPE in real-time using the classical operator-splitting method.
-                // The intermidiate PDE is solved using simply Fourier transforms
+                // The intermediate PDE is solved using simply Fourier transforms
                 void run_operator_splitting(int number_of_time_steps,
                                             double time_step,
                                             std::ostream& output_stream,
@@ -86,7 +93,7 @@ namespace UltraCold
 
                 // Write the output
                 void write_gradient_descent_output(int it);
-                void write_operator_splitting_output(int it);
+                void write_operator_splitting_output(int it,std::ostream& output_stream);
 
             private:
 
@@ -118,7 +125,7 @@ namespace UltraCold
 
                 Vector<double> x_axis,y_axis,z_axis,r2mod,kx_axis,ky_axis,kz_axis;
 
-                // Other cuda necessary data memebers
+                // Other cuda necessary data members
                 int gridSize;  // Number of cuda blocks to use
                 int blockSize; // size of each cuda block, i.e., number of threads per block
 
@@ -149,8 +156,8 @@ namespace UltraCold
                 // Wave function to return
                 Vector<std::complex<double>> result_wave_function;
 
-		// Wave function to output
-		Vector<std::complex<double>> wave_function_output;
+                // Wave function to output
+                Vector<std::complex<double>> wave_function_output;
 
         };
     }

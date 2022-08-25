@@ -35,9 +35,11 @@ namespace UltraCold
     {
 
         /**
-         * @brief The actual class
+         * @brief GPU-accelerated solver for a dipolar Gross-Pitaevskii equation.
          *
-         * Specify that the total number of points should be a multiple of 32 for optimal performance!
+         * The functionality of this solver class is practically identical to the one using only CPUs.
+         *
+         * \note For optimal performance, the total number of points should be a multiple of 32.
          *
          * */
 
@@ -89,10 +91,8 @@ namespace UltraCold
             protected:
 
                 // Write the output
-
                 virtual void write_gradient_descent_output(size_t iteration_number,
                                                            std::ostream& output_stream);
-
                 virtual void write_operator_splitting_output(size_t        iteration_number,
                                                              std::ostream& output_stream);
 
@@ -147,15 +147,10 @@ namespace UltraCold
                 double dv = 1.0;
 
                 // Other useful parameters
-                int last_iteration_number;
-                bool problem_is_1d=false;
                 bool problem_is_2d=false;
                 bool problem_is_3d=false;
 
                 int write_output_every;
-
-                // Eigenstates of the harmonic oscillator, useful for TWA
-                std::vector<Vector<double>> eigenstates_harmonic_oscillator;
 
                 // Wave function for output
                 Vector<std::complex<double>> wave_function_output;

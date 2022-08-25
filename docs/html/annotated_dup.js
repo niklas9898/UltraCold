@@ -19,10 +19,13 @@ var annotated_dup =
         [ "DataOut", "class_ultra_cold_1_1_real_space_output_1_1_data_out.html", "class_ultra_cold_1_1_real_space_output_1_1_data_out" ]
       ] ],
       [ "Tools", "namespace_ultra_cold_1_1_tools.html", [
+        [ "Color", "class_ultra_cold_1_1_tools_1_1_color.html", "class_ultra_cold_1_1_tools_1_1_color" ],
         [ "HardwareInspector", "class_ultra_cold_1_1_tools_1_1_hardware_inspector.html", "class_ultra_cold_1_1_tools_1_1_hardware_inspector" ],
-        [ "InputParser", "class_ultra_cold_1_1_tools_1_1_input_parser.html", "class_ultra_cold_1_1_tools_1_1_input_parser" ]
+        [ "InputParser", "class_ultra_cold_1_1_tools_1_1_input_parser.html", "class_ultra_cold_1_1_tools_1_1_input_parser" ],
+        [ "Pixel", "struct_ultra_cold_1_1_tools_1_1_pixel.html", null ]
       ] ],
       [ "Vector", "class_ultra_cold_1_1_vector.html", "class_ultra_cold_1_1_vector" ]
     ] ],
+    [ "Dipoles2d", "class_dipoles2d.html", null ],
     [ "myGPSolver", "classmy_g_p_solver.html", "classmy_g_p_solver" ]
 ];

@@ -34,5 +34,13 @@ var examples =
         [ "Possible extensions", "example-4.html#Possibilities-4", null ],
         [ "The plain program", "example-4.html#Uncommented-4", null ]
       ] ]
+    ] ],
+    [ "example-5", "example-5.html", [
+      [ "Simple dynamics of two vortices in a two-dimensional dipolar Bose gas, using GPU acceleration.", "example-5.html#Title-5", [
+        [ "Introduction", "example-5.html#Introduction-5", null ],
+        [ "Program description", "example-5.html#What-5", null ],
+        [ "Results", "example-5.html#Results-5", null ],
+        [ "The plain program", "example-5.html#Uncommented-5", null ]
+      ] ]
     ] ]
 ];

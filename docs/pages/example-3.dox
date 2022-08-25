@@ -281,10 +281,6 @@ visualize slices of the ground-state density profiles along the three axis
 \image html example-3-density-cut-2.png
 \image html example-3-density-cut-3.png
 
-\image latex example-3-density-cut-1.png
-\image latex example-3-density-cut-2.png
-\image latex example-3-density-cut-3.png
-
 Notice that the ground state density profile is characterized by the appearance of equally-spaced density peaks
 "immersed" in a more dilute superfluid background. Such states, characterized by a periodic density modulation of a
 phase-coherent system, are called **supersolids** and have been observed in experiments carried out, respectively,

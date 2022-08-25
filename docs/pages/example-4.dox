@@ -405,7 +405,6 @@ It is first interesting to get a look at the calculated ground-state wave functi
 here, it corresponds to a supersolid state, as we can see from the three-dimensional density contours
 
 \image html example-4-density-contours.png
-\image latex example-4-density-contours.png
 
 The output of the program related to the (first) calculated eigenvalues, corresponding to the energies of the Bogolyubov
 modes in units of \f$ \hbar \omega_{ho} \f$, is the following:
@@ -453,8 +452,6 @@ comparable energy. It is also interesting to have a look at how the excitation s
 parameter \f$ \varepsilon_{dd}=\mu_0\mu^2/(3g)=a_{dd}/a \f$. The results look like the following
 
 \image html example-4-spectrum.png
-\image latex example-4-spectrum.png
-
 
 \note Since Bogolyubov calculations in three space dimensions are numerically very demanding, most of the calculations
 required to obtain the results presented in this example have been done on the High Performance Computing cluster Galileo100

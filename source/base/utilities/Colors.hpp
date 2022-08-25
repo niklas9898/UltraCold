@@ -34,7 +34,7 @@ namespace UltraCold
 
         /**
          *
-         * @brief A simple representation of a pixel as an RGB color. Useful for certain types of visualization outputs
+         * @brief A simple representation of a pixel as an RGB color. Useful for certain types of visualization outputs.
          *
          * */
 
@@ -50,7 +50,7 @@ namespace UltraCold
          * @brief A class representing a color in an RGB scale
          *
          * This class is useful for creating custom color maps, to be used for example to output two-dimensional
-         * density images directly as .ppm images
+         * density images directly as .ppm images. See for example the function create_linear_color_map()
          *
          **/
 

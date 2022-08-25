@@ -25,11 +25,24 @@ namespace UltraCold
 {
     namespace KernelUtilities
     {
+
+        /**
+         * @brief This namespace contains all the CUDA kernels used in GPU-accelerated UltraCold solvers.
+         *
+         * These kernels are just useful CUDA implementations of simple functions used in the solver classes of
+         * UltraCold exploiting GPU acceleration. They are not meant to be used outside of such classes
+         *
+         * */
+
+        ///////////////////
         // Device kernels
+        ///////////////////
 
         __device__ cuDoubleComplex complex_exponential(cuDoubleComplex input);
 
+        ///////////////////////
         // Global kernels
+        ///////////////////////
 
         // General utilities
 

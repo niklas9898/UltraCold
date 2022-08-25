@@ -8,6 +8,7 @@ var class_ultra_cold_1_1_g_p_solvers_1_1_dipolar_g_p_solver =
     [ "run_operator_splitting", "class_ultra_cold_1_1_g_p_solvers_1_1_dipolar_g_p_solver.html#a5ff48d01a4d11800f2bee9f0d3864ef2", null ],
     [ "run_operator_splitting", "class_ultra_cold_1_1_g_p_solvers_1_1_dipolar_g_p_solver.html#a819c0c4679c05ebf9975449ea26dc1e5", null ],
     [ "run_operator_splitting", "class_ultra_cold_1_1_g_p_solvers_1_1_dipolar_g_p_solver.html#a4307fc7e459acfcffbfe425a3d68e2cc", null ],
+    [ "set_tw_initial_conditions", "class_ultra_cold_1_1_g_p_solvers_1_1_dipolar_g_p_solver.html#a53c24b8e2c13525c2abbda533dc687c8", null ],
     [ "solve_step_1_operator_splitting", "class_ultra_cold_1_1_g_p_solvers_1_1_dipolar_g_p_solver.html#aeb9768d22156ae88261a39f7a0dea599", null ],
     [ "solve_step_1_operator_splitting", "class_ultra_cold_1_1_g_p_solvers_1_1_dipolar_g_p_solver.html#ae3e963ea4528511a666afeaf3659ca21", null ],
     [ "solve_step_1_operator_splitting", "class_ultra_cold_1_1_g_p_solvers_1_1_dipolar_g_p_solver.html#a9338990fe04e8c837159985960a51320", null ],

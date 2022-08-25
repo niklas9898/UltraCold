@@ -9,17 +9,17 @@ UltraCold contains several solver classes for different flavors of Gross-Pitaevs
 for the description of ultra-cold systems of bosons at the mean-field level, studying their ground-state properties,
 the dynamics, and elementary excitations.
 
-Right now, all the solver classes take advantage of OpenMP parallelization.
+All the solver classes (both for Gross-Pitaevskii and Bogolyubov equations) take advantage of OpenMP parallelization.
+Gpu-accelerated solvers, written in CUDA, for the various flavors of Gross-Pitaevskii equations, are also available. 
 
-The complete documentation is available either in [html](https://smroccuzzo.github.io/UltraCold) or
-[pdf](./docs/manual.pdf).   
+The complete documentation is available in [html](https://smroccuzzo.github.io/UltraCold).
 
 ## Prerequisites and platforms
 
-UltraCold is built on top of Intel's Math Kernel Library, and relies
+UltraCold is built mostly on top of Intel's Math Kernel Library, and relies
 upon [arpack-ng](https://github.com/opencollab/arpack-ng) (which is provided as a bundled package) for the solution of 
 Bogolyubov equations. Hence, in order to use UltraCold, you first need to download and install a distribution of Intel's
-software.
+software. 
 
 Right now, the package has been only tested with Intel oneAPI, although it should also work with previous versions 
 of Intel Parallel Studio. The Intel oneAPI package can be downloaded **for free** from
@@ -29,9 +29,15 @@ In particular, UltraCold relies on the
 and on the
 [Intel oneAPI HPC Toolkit](https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit-download.html).
 
-The package has been tested only on Linux machines, including the High Performance Computing cluster
-[Galileo100](https://www.hpc.cineca.it/hardware/galileo100) from the italian supercomputing 
-consortium [CINECA](https://www.cineca.it/). 
+If you also want to take advantage of GPU acceleration, you need CUDA to be installed on your system (as well as, of 
+course, an NVIDIA GPU). The package has been tested only with CUDA 11.0, but should work also with some previous 
+version.
+
+The package has been tested only on Linux machines, including several laptops/PCs, but also on High Performance 
+Computing clusters, including [Galileo100](https://www.hpc.cineca.it/hardware/galileo100) from the italian 
+supercomputing consortium [CINECA](https://www.cineca.it/), and 
+[JUSTUS2](https://wiki.bwhpc.de/e/Category:BwForCluster_JUSTUS_2) from the [bwHPC](https://wiki.bwhpc.de/e/Main_Page) 
+consortium of Baden-Württemberg, Germany. 
 
 ## Installation
 
@@ -49,6 +55,23 @@ Then, enter the directory UltraCold, and follow the usual steps required to buil
     make
     make install
 
+If you want to build also the libraries that use GPU acceleration, you have to pass an additional flag to cmake, as follows
+
+    cd UltraCold
+    mkdir build
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX=</your/install/path> -DULTRACOLD_WITH_CUDA=ON ..
+    make
+    make install
+
+Notice that it is typically necessary to set in advance the environment variables required to work with Intel or CUDA 
+tools. Both packages are typically distributed with some bash script that set those variables automatically for you. 
+Moreover, on most HPC clusters, such variables are set with a command like 
+    
+    module load <my package>
+
+but the details depends on cluster you are actually working on.
+
 ##  Usage and examples
 
 UltraCold comes packed with several solver classes for different flavors of Gross-Pitaevskii and Bogolyubov
@@ -61,7 +84,7 @@ The [examples](./examples) folder contains several folders called *example-n*, e
   libraries,
 - a *CMakeLists.txt* containing instructions on how to configure and build an executable based on
   UltraCold,
-- an eventual parameter file, called *example-n.prm*,
+- an eventual parameter file, called *example-n.prm*.
 
 To run the examples, follow the usual steps required to build a project using *cmake*, namely, open a
 terminal in the folder containing the example you are interested in and type
@@ -81,7 +104,8 @@ The output of course will depend on the particular example, and is documented fu
 
 Although a prior knowledge of C++ is highly recommended, to use these examples also very basic knowledge is more
 than sufficient. The documentation tries to be as pedantic as possible, so that extending these examples for user's
-need shouldn't be too difficult.
+need shouldn't be too difficult. It is also useful to get a look at the *CMakeLists.txt* files delivered with each 
+example, in particular to notice the differences between an example built with GPU acceleration and one written without.
 
 Here is the complete list of all examples and a brief description of what each of them does. Refer to the detailed
 description available in the documentation.

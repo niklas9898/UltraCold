@@ -24,6 +24,7 @@ namespace UltraCold
 
         /**
          * @brief Default constructor. Initialize to white
+         *
          */
 
         Color::Color() :
@@ -34,6 +35,7 @@ namespace UltraCold
 
         /**
          * @brief Copy constructor
+         *
          * */
 
         Color::Color(const Color& other) :
@@ -46,6 +48,7 @@ namespace UltraCold
 
         /**
          * @brief Copy assignment
+         *
          */
 
         Color& Color::operator=(const Color& other)
@@ -69,7 +72,8 @@ namespace UltraCold
 
         /**
          * @brief Move constructor
-         * */
+         *
+         */
 
         Color::Color(const Color&& other) noexcept
         {
@@ -92,7 +96,8 @@ namespace UltraCold
 
         /**
          * @brief Move assignment
-         * */
+         *
+         */
 
         Color& Color::operator=(Color&& other) noexcept
         {
@@ -116,7 +121,8 @@ namespace UltraCold
 
         /**
          * @brief Constructor from the amount of RGB
-         * */
+         *
+         */
 
         Color::Color(double r_in,double g_in, double b_in) :
                 r((assert(r_in <= 1 && r_in >= 0),r_in)),
@@ -128,7 +134,8 @@ namespace UltraCold
 
         /**
          * @brief Set color from the amount of RGB
-         * */
+         *
+         */
 
         void Color::set_color(int r_in,int g_in,int b_in)
         {
@@ -144,7 +151,8 @@ namespace UltraCold
 
         /**
          * @brief Calculate the sum of two colors
-         **/
+         *
+         */
 
         Color Color::operator+(const Color& other) const
         {
@@ -160,6 +168,7 @@ namespace UltraCold
 
         /**
          * @brief Scale a color with a scalar
+         *
          */
 
         Color Color::operator*(const double p) const
@@ -215,14 +224,14 @@ namespace UltraCold
          * @param color_max *Color* Color at the top of the scale
          * @param number_of_levels *int* number of levels between v_min and v_max
          * @return linear_color_map *std::map<double,Color>* a map associating double values in the interval
-         * \f$ [v_min,v_max] \f$ to a color linearly interpolated between *color_min* and *color_max*
+         * \f$ [v_{min},v_{max}] \f$ to a color linearly interpolated between *color_min* and *color_max*
          *
          * This function creates a linear color map associating the color *color_min* to *v_min* and the color
-         * *color_max* to *v_max*, dividing the interval \f$[v_min,v_max]\f$ into *number_of_levels* sub-intervals and
+         * *color_max* to *v_max*, dividing the interval \f$[v_{min},v_{max}]\f$ into *number_of_levels* sub-intervals and
          * associating a color in each sub-interval by interpolating colors linearly between *color_min* and
          * *color_max*.
          *
-         * */
+         */
 
         std::map<double,Color> create_linear_color_map(double v_min,
                                                        double v_max,
@@ -255,10 +264,10 @@ namespace UltraCold
           * @param color_max *Color* Color at the top of the scale
           * @param number_of_levels *int* number of levels between v_min and v_max
           * @return diverging_color_map *std::map<double,Color>* a map associating double values in the interval
-          * \f$ [v_min,v_mid] \f$ to a color linearly interpolated between *color_min* and *color_mid*, and double values
-          * in the interval \f$ [v_mid,v_max] \f$ to a color linearly interpolated between *color_mid* and *color_max*.
+          * \f$ [v_{min},v_{mid}] \f$ to a color linearly interpolated between *color_min* and *color_mid*, and double values
+          * in the interval \f$ [v_{mid},v_{max}] \f$ to a color linearly interpolated between *color_mid* and *color_max*.
           *
-          * */
+          */
 
         std::map<double,Color> create_diverging_color_map(double v_min,
                                                           double v_mid,

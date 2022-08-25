@@ -37,3 +37,6 @@ description available in the documentation.
   ground state of a trapped dipolar Bose-Einstein condensate.
 - [example-4](./example-4) Defined in file [example-4.cpp](./example-4/example-4.cpp) Excitation
   spectrum of a trapped dipolar Bose-Einstein condensate across the superfluid-supersolid phase transition.
+- [example-5](./example-5) Defined in file [example-5.cpp](./example-5/example-5.cpp) Simple dynamics of two vortices in 
+  a two-dimensional dipolar Bose gas, **using GPU acceleration**. 
+  

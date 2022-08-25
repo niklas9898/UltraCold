@@ -32,11 +32,9 @@ namespace UltraCold
     namespace cudaSolvers
     {
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Constructor for 2d problems
-         * */
-        /////////////////////////////////////////////////////////////////////////////////////
+         */
 
         DipolarGPSolver::DipolarGPSolver(Vector<double> &x,
                                          Vector<double> &y,
@@ -170,9 +168,7 @@ namespace UltraCold
             cudaMalloc(&r2mod_d,npoints*sizeof(double));
             cudaMemcpy(r2mod_d,r2mod.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
 
-            //////////////////////////////////////////////////////////////////
             // Initialize the Fourier transform of the dipolar potential
-            //////////////////////////////////////////////////////////////////
 
             double epsilon_dd = 0.0;
             if(scattering_length != 0)
@@ -215,11 +211,9 @@ namespace UltraCold
 
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Constructor for 3d problems
-         * */
-        /////////////////////////////////////////////////////////////////////////////////////
+         */
 
         DipolarGPSolver::DipolarGPSolver(Vector<double> &x,
                                          Vector<double> &y,
@@ -425,12 +419,10 @@ namespace UltraCold
 
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Destructor frees device memory
          *
          * */
-        /////////////////////////////////////////////////////////////////////////////////////
 
         DipolarGPSolver::~DipolarGPSolver()
         {
@@ -472,16 +464,13 @@ namespace UltraCold
             KernelUtilities::square_vector<<<gridSize,blockSize>>>(density,wave_function,size);
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          *
          * @brief Run the gradient descent
          *
-         * No check of the residual! This is more barbaric!
-         *
+         * \warning No check of the residual!
          *
          * */
-        /////////////////////////////////////////////////////////////////////////////////////
 
         std::tuple<Vector<std::complex<double>>, double>
         DipolarGPSolver::run_gradient_descent(int max_num_iter,
@@ -603,13 +592,11 @@ namespace UltraCold
 
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          *
          * @brief Write gradient descent output
          *
          * */
-        /////////////////////////////////////////////////////////////////////////////////////
 
         void DipolarGPSolver::write_gradient_descent_output(size_t        iteration_number,
                                                             std::ostream& output_stream)
@@ -617,11 +604,9 @@ namespace UltraCold
             output_stream << iteration_number << " " << chemical_potential_d[0] << std::endl;
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Real-time operator splitting
-         * */
-        /////////////////////////////////////////////////////////////////////////////////////
+         */
 
         void DipolarGPSolver::run_operator_splitting(int number_of_time_steps,
                                                      double time_step,
@@ -703,37 +688,22 @@ namespace UltraCold
 
         /**
          *
-         * @brief Operator splitting output
+         * @brief Operator splitting output.
+         *
+         * This function is called after a copy of the current wave function outside of the GPU, is such a way that it
+         * can be used for example for data analysis or to write it to a file for visualization. Since each call
+         * blocks the real-time evolution on the GPU until the function has finished, it is better to use it with
+         * moderation to avoid a big loss of performance.
          *
          * */
 
         void DipolarGPSolver::write_operator_splitting_output(size_t        iteration_number,
                                                               std::ostream& output_stream)
-        {
-//            KernelUtilities::vector_average<<<gridSize,blockSize>>>(density_d,r2mod_d,wave_function_d,npoints);
-//            cudaDeviceSynchronize();
-//            double* x2m_d;
-//            cudaMallocManaged(&x2m_d,sizeof(double));
-//            cub::DeviceReduce::Sum(temporary_storage_d,size_temporary_storage,density_d,x2m_d,npoints);
-//            cudaDeviceSynchronize();
-//            x2m_d[0] = x2m_d[0]/norm_d[0];
-//            std::cout << it << " " << it*time_step_d[0] << " " << x2m_d[0] << std::endl;
-//            cudaFree(x2m_d);
-
-            cudaMemcpy(wave_function_output.data(),
-                       wave_function_d,
-                       npoints*sizeof(cuDoubleComplex),
-                       cudaMemcpyDeviceToHost);
-
-            RealSpaceOutput::DataOut wf_out;
-            wf_out.set_output_name("psi"+std::to_string(iteration_number/write_output_every));
-            wf_out.write_vtk(x_axis,y_axis,wave_function_output,"psi");
-
-        }
+        {}
 
         /**
          *
-         * @brief Reinit methods
+         * @brief Reinitialize the solver with new external potential and wave function
          *
          * */
 
@@ -741,8 +711,13 @@ namespace UltraCold
         {
             cudaMemcpy(wave_function_d,psi.data(),npoints*sizeof(cuDoubleComplex),cudaMemcpyHostToDevice);
             cudaMemcpy(external_potential_d,Vext.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
-
         }
+
+        /**
+         *
+         * @brief Reinitialize the solver with new external potential, wave function and scattering length.
+         *
+         * */
 
         void DipolarGPSolver::reinit(Vector<double> &Vext,Vector<std::complex<double>> &psi,double scattering_length)
         {
@@ -752,8 +727,9 @@ namespace UltraCold
         }
 
         /**
-         * @brief set initial conditions for a truncated wigner run
-         * */
+         * @brief Set initial conditions for a Truncated Wigner run
+         *
+         */
 
         void DipolarGPSolver::set_tw_initial_conditions(bool system_is_trapped)
         {
@@ -764,7 +740,8 @@ namespace UltraCold
 
             // First, consider the case in which the system is not trapped
 
-            if (!system_is_trapped) {
+            if (!system_is_trapped)
+            {
 
                 // Obtain a random seed from the clock
                 std::default_random_engine generator;

@@ -391,7 +391,6 @@ We can also have a look at the ground-state density profile, as well as the dens
 the .vtk output using again Paraview:
 
 \image html example-2-fig.png width=50%
-\image latex example-2-fig.png
 
 We see that most of the modes are surface modes with different angular momenta, while the breathing mode (the fifth
 mode in order from top to bottom, with the frequency of \f$ 2\omega_{ho} \f$) has clearly a compressional character.

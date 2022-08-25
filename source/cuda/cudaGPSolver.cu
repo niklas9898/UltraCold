@@ -30,11 +30,9 @@ namespace UltraCold
     namespace cudaSolvers
     {
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Constructor for 1d problems
          * */
-        /////////////////////////////////////////////////////////////////////////////////////
 
         GPSolver::GPSolver(Vector<double> &x,
                            Vector<std::complex<double>> &psi_0,
@@ -154,11 +152,9 @@ namespace UltraCold
 
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Constructor for 2d problems
-         * */
-        /////////////////////////////////////////////////////////////////////////////////////
+         */
 
         GPSolver::GPSolver(Vector<double> &x,
                            Vector<double> &y,
@@ -292,11 +288,9 @@ namespace UltraCold
             cudaMemcpy(r2mod_d,r2mod.data(),npoints*sizeof(double),cudaMemcpyHostToDevice);
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Constructor for 3d problems
-         * */
-        /////////////////////////////////////////////////////////////////////////////////////
+         */
 
         GPSolver::GPSolver(Vector<double> &x,
                            Vector<double> &y,
@@ -448,12 +442,10 @@ namespace UltraCold
 	    wave_function_output.reinit(nx,ny,nz);
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Destructor frees device memory
          *
-         * */
-        /////////////////////////////////////////////////////////////////////////////////////
+         */
 
         GPSolver::~GPSolver()
         {
@@ -492,16 +484,13 @@ namespace UltraCold
             KernelUtilities::square_vector<<<gridSize,blockSize>>>(density,wave_function,size);
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          *
          * @brief Run the gradient descent
          *
-         * No check of the residual! This is more barbaric!
+         * \warning No check of the residual!
          *
-         *
-         * */
-        /////////////////////////////////////////////////////////////////////////////////////
+         */
 
         std::tuple<Vector<std::complex<double>>, double>
                 GPSolver::run_gradient_descent(int max_num_iter,
@@ -607,24 +596,20 @@ namespace UltraCold
 
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          *
          * @brief Write gradient descent output
          *
          * */
-        /////////////////////////////////////////////////////////////////////////////////////
 
         void GPSolver::write_gradient_descent_output(int it)
         {
             std::cout << it << " " << chemical_potential_d[0] << std::endl;
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
         /**
          * @brief Real-time operator splitting
          * */
-        /////////////////////////////////////////////////////////////////////////////////////
 
         void GPSolver::run_operator_splitting(int number_of_time_steps, double time_step, std::ostream &output_stream,
                                               int write_output_every)
@@ -651,7 +636,13 @@ namespace UltraCold
 
                 // Write output starting from the very first iteration
                 if(it % write_output_every == 0)
-                    write_operator_splitting_output(it);
+                {
+                    cudaMemcpy(wave_function_output.data(),
+                               wave_function_d,
+                               npoints*sizeof(cuDoubleComplex),
+                               cudaMemcpyDeviceToHost);
+                    write_operator_splitting_output(it,output_stream);
+                }
 
                 // Solve step-1 of operator splitting, i.e. the one NOT involving Fourier transforms
                 KernelUtilities::step_1_operator_splitting<<<gridSize,blockSize>>>(wave_function_d,
@@ -688,26 +679,21 @@ namespace UltraCold
 
         /**
          *
-         * @brief Operator splitting output
+         * @brief Operator splitting output.
          *
-         * */
+         * This function is called after a copy of the current wave function outside of the GPU, is such a way that it
+         * can be used for example for data analysis or to write it to a file for visualization. Since each call
+         * blocks the real-time evolution on the GPU until the function has finished, it is better to use it with
+         * moderation to avoid a big loss of performance.
+         *
+         */
 
-        void GPSolver::write_operator_splitting_output(int it)
-        {
-            KernelUtilities::vector_average<<<gridSize,blockSize>>>(density_d,r2mod_d,wave_function_d,npoints);
-            cudaDeviceSynchronize();
-            double* x2m_d;
-            cudaMallocManaged(&x2m_d,sizeof(double));
-            cub::DeviceReduce::Sum(temporary_storage_d,size_temporary_storage,density_d,x2m_d,npoints);
-            cudaDeviceSynchronize();
-            x2m_d[0] = x2m_d[0]/norm_d[0];
-            std::cout << it << " " << it*time_step_d[0] << " " << x2m_d[0] << std::endl;
-            cudaFree(x2m_d);
-        }
+        void GPSolver::write_operator_splitting_output(int it,std::ostream& output_stream)
+        {}
 
         /**
          *
-         * @brief Reinit method
+         * @brief Reinitialize the solver with a new external potential and wave function.
          *
          * */
 

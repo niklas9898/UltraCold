@@ -468,19 +468,16 @@ calculated ground-state wave function. Using, for example,  <a href="https://www
 typical output can look like the following
 
 \image html example-1-density.png
-\image latex example-1-density.png
 
 More interesting is the output of the real-time simulation dynamics. In fact, the value of squared mean radius of the
 cloud shows, as expected, a first decrease during the ramp, followed by a nice and simple harmonic oscillation:
 
 \image html example-1-signal.png
-\image latex example-1-signal.png
 
 The frequency of such harmonic oscillation can be extracted by a simple Fourier transform. The output looks like the
 following:
 
 \image html example-1-ft.png
-\image latex example-1-ft.png
 
 In this image, we also report the value of the frequency of the breathing mode calculated analytically, and
 corresponding, for this case, to \f$ \sqrt{5}\omega_{ho} \f$. Such frequency is reported in the orange vertical line,

@@ -115,13 +115,12 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 About</h1>
 <p >UltraCold is a modular and extensible collection of C++ libraries for the study of ultra-cold atomic systems in the context of Gross-Pitaevskii theory. <br  />
  The package contains several solver classes for different flavors of Gross-Pitaevskii and Bogolyubov equations, allowing for the description of ultra-cold systems of bosons at the mean-field level, studying their ground-state properties, the dynamics, and elementary excitations.</p>
-<p >Right now, all the solver classes take advantage of OpenMP parallelization.</p>
+<p >All the solver classes (both for Gross-Pitaevskii and Bogolyubov equations) take advantage of OpenMP parallelization. Gpu-accelerated solvers, written in CUDA, for the various flavors of Gross-Pitaevskii equations, are also available.</p>
 <h1><a class="anchor" id="Required"></a>
 Prerequisites and platforms</h1>
-<p >UltraCold is built on top of Intel's Math Kernel Library, and relies upon <a href="https://github.com/opencollab/arpack-ng">arpack-ng</a> (which is provided as a bundled package) for the solution of Bogolyubov equations. Hence, in order to use UltraCold, you first need to download and install a distribution of Intel's software.</p>
-<p >Right now, the package has been only tested with Intel oneAPI, although it should also work with previous versions of Intel Parallel Studio. The Intel oneAPI package can be downloaded <b>for free</b> from <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html">here</a>. In particular, UltraCold relies on the <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.html">Intel oneAPI Base Toolkit</a> and on the <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit-download.html">Intel oneAPI HPC Toolkit</a>.</p>
-<p >The package has been tested only on Linux machines, including the High Performance Computing cluster <a href="https://www.hpc.cineca.it/hardware/galileo100">Galileo100</a> from the italian supercomputing consortium <a href="https://www.cineca.it/">CINECA</a>. <br  />
- </p>
+<p >UltraCold has been only tested with Intel oneAPI, although it should also work with previous versions of Intel Parallel Studio. The Intel oneAPI package can be downloaded <b>for free</b> from <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html">here </a>. In particular, <a class="el" href="namespace_ultra_cold.html" title="All the classes and functions necessary to work with UltraCold.">UltraCold</a> relies on the <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.html">Intel oneAPI Base Toolkit</a> and on the <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit-download.html">Intel oneAPI HPC Toolkit</a>.</p>
+<p >If you also want to take advantage of GPU acceleration, you need CUDA to be installed on your system (as well as, of course, an NVIDIA GPU). The package has been tested only with CUDA 11.0, but should work also with some previous version.</p>
+<p >The package has been tested only on Linux machines, including several laptops/PCs, but also on High Performance Computing clusters, including <a href="https://www.hpc.cineca.it/hardware/galileo100">Galileo100 </a> from the italian supercomputing consortium <a href="https://www.cineca.it/">CINECA </a>, and <a href="https://wiki.bwhpc.de/e/Category:BwForCluster_JUSTUS_2">JUSTUS2 </a> from the <a href="https://wiki.bwhpc.de/e/Main_Page">bwHPC </a> consortium of Baden-Württemberg, Germany.</p>
 <h1><a class="anchor" id="Installation"></a>
 Installation</h1>
 <p >To get UltraCold, first clone it into your machine</p>
@@ -133,7 +132,17 @@ Installation</h1>
 <div class="line">make</div>
 <div class="line">make install</div>
 <div class="ttc" id="anamespace_ultra_cold_html"><div class="ttname"><a href="namespace_ultra_cold.html">UltraCold</a></div><div class="ttdoc">All the classes and functions necessary to work with UltraCold.</div><div class="ttdef"><b>Definition:</b> BogolyubovSolver.cpp:25</div></div>
-</div><!-- fragment --><h1><a class="anchor" id="Usage"></a>
+</div><!-- fragment --><p >If you want to build also the libraries that use GPU acceleration, you have to pass an additional flag to cmake, as follows</p>
+<div class="fragment"><div class="line">cd <a class="code hl_namespace" href="namespace_ultra_cold.html">UltraCold</a></div>
+<div class="line">mkdir build</div>
+<div class="line">cd build</div>
+<div class="line">cmake -DCMAKE_INSTALL_PREFIX=&lt;/your/install/path&gt; -DULTRACOLD_WITH_CUDA=ON ..</div>
+<div class="line">make</div>
+<div class="line">make install</div>
+</div><!-- fragment --><p >Notice that it is typically necessary to set in advance the environment variables required to work with Intel or CUDA tools. Both packages are typically distributed with some bash script that set those variables automatically for you. Moreover, on most HPC clusters, such variables are set with a command like</p>
+<div class="fragment"><div class="line">module load &lt;my package&gt;</div>
+</div><!-- fragment --><p >but the details depends on cluster you are actually working on.</p>
+<h1><a class="anchor" id="Usage"></a>
 Usage and examples</h1>
 <p >UltraCold comes packed with several solver classes for different flavors of Gross-Pitaevskii and Bogolyubov-like equations. The complete list of available solvers, as well as other useful classes (e.g. for data output) is available under the namespace <a class="el" href="namespace_ultra_cold.html" title="All the classes and functions necessary to work with UltraCold.">UltraCold</a>. <br  />
  The <a class="el" href="examples.html">Examples</a> section provides several examples of usage of the basic functionalities of the package (as well as some physics). Such examples are meant to be used as templates for more complex applications, combining the functionality of the package to develop some interesting physics.</p>
