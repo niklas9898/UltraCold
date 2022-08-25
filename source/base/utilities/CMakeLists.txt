@@ -10,7 +10,8 @@ add_library(utilities
         ${CMAKE_SOURCE_DIR}/source/base/utilities/Vector.cpp
         ${CMAKE_SOURCE_DIR}/source/base/utilities/DFtCalculator.cpp
         ${CMAKE_SOURCE_DIR}/source/base/utilities/mesh_fourier_space.cpp
-)
+        ${CMAKE_SOURCE_DIR}/source/base/utilities/Colors.cpp
+        )
 
 target_include_directories(utilities
         INTERFACE
@@ -33,3 +34,4 @@ install(FILES Vector.hpp DESTINATION include)
 install(FILES DataOut.hpp DESTINATION include)
 install(FILES mesh_fourier_space.hpp DESTINATION include)
 install(FILES DFtCalculator.hpp DESTINATION include)
+install(FILES Colors.hpp DESTINATION include)
