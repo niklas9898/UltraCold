@@ -83,55 +83,46 @@ namespace UltraCold
 
 
                 // Output a 1D real Vector in a .csv file
-
                 void write_csv(Vector<double>& x_axis,
                                Vector<double>& real_output_vector);
 
                 // Output a 1D complex Vector in a .csv file
-
                 void write_csv(Vector<double>& x_axis,
                                Vector<std::complex<double>>& complex_output_vector);
 
                 // Output a 2D real Vector in a .csv file
-
                 void write_csv(Vector<double>& x_axis,
                                Vector<double>& y_axis,
                                Vector<double>& real_output_vector);
 
                 // Output a 2D complex Vector in a .csv file
-
                 void write_csv(Vector<double>& x_axis,
                                Vector<double>& y_axis,
                                Vector<std::complex<double>>& complex_output_vector);
 
                 // Output a 1D slice of a 2D or 3D real Vector in a .csv file
-
                 void write_slice1d_csv(Vector<double>& axis,
                                        Vector<double>& real_output_vector,
                                        const char* axis_name);
 
                 // Output a 1D slice of a 2D or 3D complex Vector in a .csv file
-
                 void write_slice1d_csv(Vector<double>& axis,
                                        Vector<std::complex<double>>& complex_output_vector,
                                        const char* axis_name);
 
                 // Output a 2D slice of a 3D real Vector in a .csv file
-
                 void write_slice2d_csv(Vector<double>& x_axis,
                                        Vector<double>& y_axis,
                                        Vector<double>& real_output_vector,
                                        const char* plane_name);
 
                 // Output a 2D slice of a 3D complex Vector in a .csv file
-
                 void write_slice2d_csv(Vector<double>& x_axis,
                                        Vector<double>& y_axis,
                                        Vector<std::complex<double>>& complex_output_vector,
                                        const char* plane_name);
 
                 // Stack 1-dimensional time data and output for a 2-dimensional plot
-
                 void stack1d_csv(double time,
                                  Vector<double>& x_axis,
                                  Vector<double>& real_output_vector);
@@ -144,21 +135,18 @@ namespace UltraCold
                 ////////////////////
 
                 // Output a 2D real Vector in a .vtk file
-
                 void write_vtk(Vector<double>& x_axis,
                                Vector<double>& y_axis,
                                Vector<double>& real_output_vector,
                                const char* vector_name);
 
                 // Output a 2D complex Vector in a .vtk file
-
                 void write_vtk(Vector<double>& x_axis,
                                Vector<double>& y_axis,
                                Vector<std::complex<double>>& complex_output_vector,
                                const char* vector_name);
 
                 // Output a 3D real Vector in a .vtk file
-
                 void write_vtk(Vector<double>& x_axis,
                                Vector<double>& y_axis,
                                Vector<double>& z_axis,
@@ -166,7 +154,6 @@ namespace UltraCold
                                const char* vector_name);
 
                 // Output a 3D complex Vector in a .vtk file
-
                 void write_vtk(Vector<double>& x_axis,
                                Vector<double>& y_axis,
                                Vector<double>& z_axis,
@@ -174,7 +161,6 @@ namespace UltraCold
                                const char* vector_name);
 
                 // Output a 2D slice of a 3D real Vector in a .vtk file
-
                 void write_slice2d_vtk(Vector<double>& x_axis,
                                        Vector<double>& y_axis,
                                        Vector<double>& real_output_vector,
@@ -182,7 +168,6 @@ namespace UltraCold
                                        const char* plane);
 
                 // Output a 2D slice of a 3D complex Vector in a .vtk file
-
                 void write_slice2d_vtk(Vector<double>& x_axis,
                                        Vector<double>& y_axis,
                                        Vector<std::complex<double>>& complex_output_name,
@@ -240,24 +225,20 @@ namespace UltraCold
                 ////////////////////
 
                 // Output a 1D complex Vector in a .csv file
-
                 void write_csv(Vector<double>& x_axis,
                                Vector<std::complex<double>>& output_vector);
 
                 // Output a 2D complex Vector in a .csv file
-
                 void write_csv(Vector<double>& x_axis,
                                Vector<double>& y_axis,
                                Vector<std::complex<double>>& output_vector);
 
                 // Output a 1D slice of a 2D or 3D complex Vector in a .csv file
-
                 void write_slice1d_csv(Vector<double>& axis,
                                        Vector<std::complex<double>>& output_vector,
                                        const char* axis_name);
 
                 // Output a 2D slice of a 3D complex Vector in a .csv file
-
                 void write_slice2d_csv(Vector<double>& x_axis,
                                        Vector<double>& y_axis,
                                        Vector<std::complex<double>>& output_vector,
