@@ -106,9 +106,9 @@ namespace UltraCold
          * */
 
         __global__ void vector_average(double* result,
-                                             double* input1,
-                                             cuDoubleComplex* input2,
-                                             int size)
+                                       double* input1,
+                                       cuDoubleComplex* input2,
+                                       int size)
         {
             int index = blockIdx.x * blockDim.x + threadIdx.x;
             int stride = blockDim.x * gridDim.x;
@@ -217,6 +217,11 @@ namespace UltraCold
                             + 4*PI*scattering_length[0]*(psi[i].x*psi[i].x+psi[i].y*psi[i].y)
                             ) *
                             psi[i].x;
+                hpsi[i].y = hpsi[i].y +
+                            (Vext[i]
+                             + 4*PI*scattering_length[0]*(psi[i].x*psi[i].x+psi[i].y*psi[i].y)
+                            ) *
+                            psi[i].y;
             }
         }
 
@@ -248,6 +253,13 @@ namespace UltraCold
                             + gamma_epsilon_dd[0]*pow(aux,3)
                             ) *
                             psi[i].x;
+                hpsi[i].y = hpsi[i].y +
+                            (Vext[i]
+                             + 4*PI*scattering_length[0]*pow(aux,2)
+                             + Phi_dd[i].x
+                             + gamma_epsilon_dd[0]*pow(aux,3)
+                            ) *
+                            psi[i].y;
             }
         }
 
@@ -313,6 +325,8 @@ namespace UltraCold
             {
                 psi_new[i].x = (1.0 + beta[0])*psi[i].x - alpha[0]*hpsi[i].x - beta[0]*psi_old[i].x;
                 psi_old[i].x = psi[i].x;
+                psi_new[i].y = (1.0 + beta[0])*psi[i].y - alpha[0]*hpsi[i].y - beta[0]*psi_old[i].y;
+                psi_old[i].y = psi[i].y;
             }
         }
 
