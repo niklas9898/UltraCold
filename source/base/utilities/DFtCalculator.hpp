@@ -58,56 +58,56 @@ namespace UltraCold
         class DFtCalculator
         {
         
-            public:
+        public:
 
-                // Constructors
-                DFtCalculator(Vector<std::complex<double>>& forward_domain_vector,
-                              Vector<std::complex<double>>& backward_domain_vector);
-                DFtCalculator(Vector<double>& forward_domain_vector,
-                              Vector<std::complex<double>>& backward_domain_vector);
-                DFtCalculator() = default;
+            // Constructors
+            DFtCalculator(Vector<std::complex<double>>& forward_domain_vector,
+                          Vector<std::complex<double>>& backward_domain_vector);
+            DFtCalculator(Vector<double>& forward_domain_vector,
+                          Vector<std::complex<double>>& backward_domain_vector);
+            DFtCalculator() = default;
 
-                // Destructor
-                ~DFtCalculator();
+            // Destructor
+            ~DFtCalculator();
 
-                // Reinit functions
-                void reinit(Vector<std::complex<double>>& forward_domain_vector,
-                            Vector<std::complex<double>>& backward_domain_vector);
-                void reinit(Vector<double>& forward_domain_vector,
-                            Vector<std::complex<double>>& backward_domain_vector);
+            // Reinit functions
+            void reinit(Vector<std::complex<double>>& forward_domain_vector,
+                        Vector<std::complex<double>>& backward_domain_vector);
+            void reinit(Vector<double>& forward_domain_vector,
+                        Vector<std::complex<double>>& backward_domain_vector);
 
-                // Calculator functions
-                void compute_forward();
-                void compute_backward();
+            // Calculator functions
+            void compute_forward();
+            void compute_backward();
 
-            private:
+        private:
 
-                // The descriptor
-                DFTI_DESCRIPTOR_HANDLE dft_descriptor;
+            // The descriptor
+            DFTI_DESCRIPTOR_HANDLE dft_descriptor;
 
-                // Extents
-                long forward_domain_n1,forward_domain_n2,forward_domain_n3;
-                long backward_domain_n1,backward_domain_n2,backward_domain_n3;
+            // Extents
+            long forward_domain_n1,forward_domain_n2,forward_domain_n3;
+            long backward_domain_n1,backward_domain_n2,backward_domain_n3;
 
-                // status variable
-                long status;
+            // status variable
+            long status;
 
-                // pointer to first memory location of input/output Vectors
-                void* forward_domain_pointer  = nullptr;
-                void* backward_domain_pointer = nullptr;
+            // pointer to first memory location of input/output Vectors
+            void* forward_domain_pointer  = nullptr;
+            void* backward_domain_pointer = nullptr;
 
-                // Transform type
-                bool transform_is_real_complex = false;
-                bool transform_is_2d = false;
-                bool transform_is_3d = false;
+            // Transform type
+            bool transform_is_real_complex = false;
+            bool transform_is_2d = false;
+            bool transform_is_3d = false;
 
-                // Strides for 2d and 3d transforms. Needed only for real-complex transforms
-                long strides_forward_domain_2d[3];
-                long strides_forward_domain_3d[4];
-                long strides_backward_domain_2d[3];
-                long strides_backward_domain_3d[4];
+            // Strides for 2d and 3d transforms. Needed only for real-complex transforms
+            long strides_forward_domain_2d[3];
+            long strides_forward_domain_3d[4];
+            long strides_backward_domain_2d[3];
+            long strides_backward_domain_3d[4];
 
-        };
+    };
         
     } // namespace MKLWrappers
 } // namespace UltraCold
